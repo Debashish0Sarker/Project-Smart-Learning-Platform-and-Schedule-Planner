@@ -14,6 +14,7 @@ class CourseResource extends Model
         'type',
         'title',
         'url',
+        'file_path',
         'description'
     ];
 

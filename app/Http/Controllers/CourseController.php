@@ -33,4 +33,9 @@ return redirect()->route('courses.create')->with('success', 'Course created succ
             'data' => $course
         ], 201);
     }
+    public function show()
+    {
+        $course = Course::all();
+        return view('courses.showcourse', compact('course'));
+    }
 }

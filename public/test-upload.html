@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Test File Upload</h2>
+    
+    <form action="http://localhost:8000/courses/CSE471/resources" 
+          method="POST" enctype="multipart/form-data">
+        
+        <!-- Get CSRF token from your actual form -->
+        <!-- Or visit your form page, view source, copy the _token value -->
+        <input type="hidden" name="_token" value="PASTE_TOKEN_HERE">
+        
+        <div>
+            <label>Type:</label>
+            <select name="type">
+                <option value="pdf">PDF</option>
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+            </select>
+        </div>
+        
+        <div>
+            <label>Title:</label>
+            <input type="text" name="title" value="Test File">
+        </div>
+        
+        <div>
+            <label>Choose File (leave URL empty):</label>
+            <input type="file" name="file">
+        </div>
+        
+        <div>
+            <label>OR URL (leave file empty):</label>
+            <input type="url" name="url" placeholder="https://...">
+        </div>
+        
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

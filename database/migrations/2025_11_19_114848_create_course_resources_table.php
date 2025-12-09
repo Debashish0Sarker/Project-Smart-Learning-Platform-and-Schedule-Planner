@@ -13,7 +13,8 @@ return new class extends Migration
             $table->string('course_code');
             $table->enum('type', ['pdf', 'video', 'image']);
             $table->string('title');
-            $table->text('url');
+             $table->text('url')->nullable();  // FIX: Made nullable
+            $table->string('file_path')->nullable(); 
             $table->text('description')->nullable();
             $table->timestamps();
 
