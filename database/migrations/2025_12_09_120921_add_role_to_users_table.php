@@ -11,21 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('courses', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->string('code')->unique();
-            $table->string('category');
-            $table->text('description');
-            $table->timestamps();
-        });
+    Schema::table('users', function (Blueprint $table) {
+        $table->string('role')->default('student');
+    });
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('courses');
+    Schema::table('users', function (Blueprint $table) {
+        $table->dropColumn('role');
+    });
     }
+
 };

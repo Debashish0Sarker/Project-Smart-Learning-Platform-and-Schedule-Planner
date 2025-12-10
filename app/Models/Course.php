@@ -2,19 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
+        'code',
         'title',
-        'code', 
-        'category',
-        'description'
+        'description',
+        'teacher_id',
     ];
 
-    public function resources()
+    public function teacher()
     {
-        return $this->hasMany(CourseResource::class, 'course_code', 'code');
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    public function quizzes()
+    {
+        return $this->hasMany(Quiz::class);
     }
 }
