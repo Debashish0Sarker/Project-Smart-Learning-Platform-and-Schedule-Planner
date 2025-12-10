@@ -13,6 +13,10 @@ class Course extends Model
         'description'
     ];
 
+    protected $casts = [
+        'topic_tags' => 'array',
+    ];
+
     public function resources()
     {
         return $this->hasMany(CourseResource::class, 'course_code', 'code');
@@ -41,4 +45,7 @@ class Course extends Model
     {
         return $this->belongsToMany(User::class, 'enrollments', 'course_id', 'student_id');
     }
+
+    
+
 }

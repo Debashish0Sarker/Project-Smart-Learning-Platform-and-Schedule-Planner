@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\WeakAreaController;
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,3 +41,13 @@ Route::prefix('teacher')->name('teacher.')->group(function () {
 Route::get('/feature3-test', function() {
     return 'Feature 3: Teacher Quiz Creation - Working';
 });
+
+
+Route::get('/weak-areas-test', [WeakAreaController::class, 'test'])->name('weak-areas.test');
+Route::get('/weak-areas/enroll-test/{courseId}', [WeakAreaController::class, 'enrollTest'])->name('weak-areas.enroll-test');
+Route::get('/weak-areas/clear-enrollments', [WeakAreaController::class, 'clearTestEnrollments'])->name('weak-areas.clear-enrollments');
+
+
+
+Route::get('/weak-areas', [WeakAreaController::class, 'show'])->name('weak-areas');
+Route::post('/weak-areas/enroll', [WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
