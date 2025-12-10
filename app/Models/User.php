@@ -45,4 +45,47 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+
+    
+    public function coursesTeaching()
+    {
+        return $this->hasMany(Course::class, 'teacher_id');
+    }
+
+    public function quizzes()
+    {
+        return $this->hasMany(Quiz::class, 'teacher_id');
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class, 'teacher_id');
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class, 'student_id');
+    }
+
+    public function enrolledCourses()
+    {
+        return $this->belongsToMany(Course::class, 'enrollments', 'student_id', 'course_id');
+    }
+
+    public function isTeacher()
+    {
+        return $this->role === 'teacher';
+    }
+
+    public function isStudent()
+    {
+        return $this->role === 'student';
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 }
