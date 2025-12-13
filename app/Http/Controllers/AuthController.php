@@ -127,9 +127,8 @@ class AuthController extends Controller
                 return redirect('/student/dashboard');
             } elseif ($role === 'teacher') {
                 return redirect('/teacher/dashboard');
-            } elseif ($role === 'admin') {
-                return redirect('/admin/dashboard');
-            }
+            } ;
+            
         }
 
         // Login failed → increment throttle counter

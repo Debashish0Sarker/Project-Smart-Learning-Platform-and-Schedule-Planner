@@ -14,7 +14,7 @@
             </ul>
         </div>
     @endif
-
+    
     @if (session('success'))
         <div style="color: green; margin-bottom: 10px;">
             {{ session('success') }}
