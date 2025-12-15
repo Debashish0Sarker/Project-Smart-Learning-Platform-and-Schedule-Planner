@@ -49,9 +49,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('teacher.quizzes.show', $quiz) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <!--<a href="{{ route('teacher.quizzes.show', $quiz) }}" class="text-blue-600 hover:text-blue-900 mr-3">
                                     View
-                                </a>
+                                </a> -->
                                 <a href="{{ route('teacher.quizzes.edit', $quiz) }}" class="text-green-600 hover:text-green-900 mr-3">
                                     Edit
                                 </a>
