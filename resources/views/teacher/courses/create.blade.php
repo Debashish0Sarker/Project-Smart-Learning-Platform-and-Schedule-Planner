@@ -48,7 +48,7 @@
 
         <!-- Laravel Form -->
         <div class="bg-white rounded-xl shadow-md p-6">
-            <form action="{{ route('courses.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('teacher.courses.store') }}" method="POST" class="space-y-6">
                 @csrf
 
                 <!-- Title Field -->

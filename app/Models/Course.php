@@ -10,22 +10,17 @@ class Course extends Model
         'title',
         'code', 
         'category',
-        'description'
+        'description',
+        'teacher_id',
+        'topic_tags',
+        'status',
     ];
 
     protected $casts = [
         'topic_tags' => 'array',
     ];
 
-    public function resources()
-    {
-        return $this->hasMany(CourseResource::class, 'course_code', 'code');
-    }
-
-
-
-
-    
+    // Relations from Boloy
     public function teacher()
     {
         return $this->belongsTo(User::class, 'teacher_id');
@@ -46,6 +41,14 @@ class Course extends Model
         return $this->belongsToMany(User::class, 'enrollments', 'course_id', 'student_id');
     }
 
-    
+    public function materials()
+{
+    return $this->hasMany(CourseMaterial::class);
+}
 
+// For backward compatibility if needed
+public function resources()
+{
+    return $this->materials();
+}
 }

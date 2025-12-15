@@ -1,13 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\ResourceController;
-use App\Http\Controllers\WeakAreaController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 
-
-
+// Public Routes
 Route::get('/', function () {
     return view('welcome');
 });
@@ -15,39 +13,65 @@ Route::get('/', function () {
 Route::get('/home', function () {
     return view('home');
 });
-Route::get('/student', [App\Http\Controllers\StudentController::class, 'showcase']);
-Route::post('/courses', [App\Http\Controllers\CourseController::class, 'store']);
-Route::post('/resources', [App\Http\Controllers\ResourceController::class, 'store']);
-Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
-Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
 
+// Authentication Routes (From Amio)
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Password Reset Routes
+Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
-
-Route::prefix('teacher')->name('teacher.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('teacher.dashboard');
-    })->name('dashboard');
+// Protected Student Routes
+Route::middleware(['auth'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
     
-    Route::resource('quizzes', \App\Http\Controllers\Teacher\QuizController::class);
+    // Courses
+    Route::get('/courses', [\App\Http\Controllers\Student\CourseController::class, 'index'])->name('courses.index');
+    Route::post('/courses/enroll', [\App\Http\Controllers\Student\CourseController::class, 'enroll'])->name('courses.enroll');
     
-    Route::get('/courses', function () {
-        $courses = \App\Models\Course::all();
-        return view('teacher.courses.index', compact('courses'));
-    })->name('courses.index');
+    // Quizzes
+    Route::get('/quizzes', [\App\Http\Controllers\Student\QuizController::class, 'index'])->name('quizzes.index');
+    Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('quizzes.show');
+    Route::post('/quizzes/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'submitQuiz'])->name('quizzes.submit');
+    
+    // Weak areas
+    Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])->name('weak-areas');
+    Route::post('/weak-areas/enroll', [\App\Http\Controllers\Student\WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
 });
 
-// Test route
+// Protected Teacher Routes
+Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function () {
+    Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
+    
+    // Courses - RESTful resource (7 routes total)
+    Route::resource('courses', \App\Http\Controllers\Teacher\CourseController::class);
+    
+    // Quizzes - RESTful resource (7 routes total)
+    Route::resource('quizzes', \App\Http\Controllers\Teacher\QuizController::class);
+    
+    // Course Materials Routes - FIXED NAMES
+    Route::get('/courses/{course}/materials', [\App\Http\Controllers\Teacher\ResourceController::class, 'index'])
+        ->name('courses.materials.index');  // This becomes teacher.courses.materials.index
+        
+    Route::get('/courses/{course}/materials/create', [\App\Http\Controllers\Teacher\ResourceController::class, 'create'])
+        ->name('courses.materials.create');  // This becomes teacher.courses.materials.create
+        
+    Route::post('/courses/{course}/materials', [\App\Http\Controllers\Teacher\ResourceController::class, 'store'])
+        ->name('courses.materials.store');  // This becomes teacher.courses.materials.store
+});
+
+// Test routes (development only - can remove later)
 Route::get('/feature3-test', function() {
     return 'Feature 3: Teacher Quiz Creation - Working';
 });
 
-
-Route::get('/weak-areas-test', [WeakAreaController::class, 'test'])->name('weak-areas.test');
-Route::get('/weak-areas/enroll-test/{courseId}', [WeakAreaController::class, 'enrollTest'])->name('weak-areas.enroll-test');
-Route::get('/weak-areas/clear-enrollments', [WeakAreaController::class, 'clearTestEnrollments'])->name('weak-areas.clear-enrollments');
-
-
-
-Route::get('/weak-areas', [WeakAreaController::class, 'show'])->name('weak-areas');
-Route::post('/weak-areas/enroll', [WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
+// COMMENT OUT or REMOVE these problematic test routes
+// Route::get('/weak-areas-test', [\App\Http\Controllers\Student\WeakAreaController::class, 'test'])->name('weak-areas.test');
+// Route::get('/weak-areas/enroll-test/{courseId}', [\App\Http\Controllers\Student\WeakAreaController::class, 'enrollTest'])->name('weak-areas.enroll-test');
+// Route::get('/weak-areas/clear-enrollments', [\App\Http\Controllers\Student\WeakAreaController::class, 'clearTestEnrollments'])->name('weak-areas.clear-enrollments');
