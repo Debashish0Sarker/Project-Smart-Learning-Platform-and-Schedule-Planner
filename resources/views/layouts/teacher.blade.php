@@ -22,6 +22,18 @@
                     <a href="{{ route('teacher.quizzes.index') }}" class="text-gray-700 hover:text-blue-600">Quizzes</a>
                     <a href="{{ route('teacher.dashboard') }}" class="text-gray-700 hover:text-blue-600">Dashboard</a>
                 </div>
+                <div class="flex items-center space-x-4">
+                    @auth
+                        <span class="text-gray-700">Hello, {{ auth()->user()->name }}</span>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="text-red-600 hover:text-red-800">Logout</button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-600">Login</a>
+                        <a href="{{ route('register') }}" class="text-gray-700 hover:text-blue-600">Register</a>
+                    @endauth
+                </div>
             </div>
         </div>
     </nav>
