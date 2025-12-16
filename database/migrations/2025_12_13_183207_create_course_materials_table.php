@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->enum('type', ['pdf', 'video', 'image', 'link', 'document']);
-            $table->text('url');
+            $table->text('url')->nullable();
             $table->string('file_path')->nullable();
             $table->text('description')->nullable();
             $table->integer('order')->default(0);

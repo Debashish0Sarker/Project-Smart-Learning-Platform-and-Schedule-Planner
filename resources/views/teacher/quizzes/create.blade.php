@@ -282,18 +282,49 @@ document.addEventListener('DOMContentLoaded', function() {
         const typeSelect = questionElement.querySelector('.question-type');
         const questionType = typeSelect.value;
         
-        // Hide all containers
-        questionElement.querySelector('.options-container').style.display = 'none';
-        questionElement.querySelector('.true-false-container').style.display = 'none';
-        questionElement.querySelector('.short-answer-container').style.display = 'none';
-        
-        // Show appropriate container
+        // Helper: set disabled state for all form controls inside a container
+        function setContainerDisabled(container, disabled) {
+            if (!container) return;
+            const controls = container.querySelectorAll('input, textarea, select');
+            controls.forEach(ctrl => {
+                ctrl.disabled = disabled;
+                // If enabling, ensure required attributes are kept as originally present
+                // If disabling, remove required to avoid browser validation issues
+                if (disabled) {
+                    ctrl.removeAttribute('required');
+                } else {
+                    // For elements that should be required when visible, set required where appropriate
+                    // We only set required for option text inputs and short answer/select which had required in template
+                    if (ctrl.matches('textarea') || ctrl.matches('select') || (ctrl.matches('input[type="text"]') && container.classList.contains('options-container'))) {
+                        ctrl.setAttribute('required', 'required');
+                    }
+                }
+            });
+        }
+
+        // Hide all containers and disable their inputs (so HTML5 validation ignores them)
+        const optionsContainer = questionElement.querySelector('.options-container');
+        const tfContainer = questionElement.querySelector('.true-false-container');
+        const saContainer = questionElement.querySelector('.short-answer-container');
+
+        optionsContainer.style.display = 'none';
+        tfContainer.style.display = 'none';
+        saContainer.style.display = 'none';
+
+        setContainerDisabled(optionsContainer, true);
+        setContainerDisabled(tfContainer, true);
+        setContainerDisabled(saContainer, true);
+
+        // Show and enable the appropriate container
         if (questionType === 'mcq') {
-            questionElement.querySelector('.options-container').style.display = 'block';
+            optionsContainer.style.display = 'block';
+            setContainerDisabled(optionsContainer, false);
         } else if (questionType === 'true_false') {
-            questionElement.querySelector('.true-false-container').style.display = 'block';
+            tfContainer.style.display = 'block';
+            setContainerDisabled(tfContainer, false);
         } else if (questionType === 'short_answer') {
-            questionElement.querySelector('.short-answer-container').style.display = 'block';
+            saContainer.style.display = 'block';
+            setContainerDisabled(saContainer, false);
         }
     }
     

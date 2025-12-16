@@ -41,14 +41,15 @@ class Course extends Model
         return $this->belongsToMany(User::class, 'enrollments', 'course_id', 'student_id');
     }
 
+// app/Models/Course.php - Add this method
     public function materials()
-{
-    return $this->hasMany(CourseMaterial::class);
-}
+    {
+        return $this->hasMany(CourseMaterial::class);
+    }
 
 // For backward compatibility if needed
-public function resources()
-{
-    return $this->materials();
-}
+    public function resources()
+    {
+        return $this->materials();
+    }
 }
