@@ -27,6 +27,22 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name(
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
+// Add this after your authentication routes
+Route::middleware(['auth'])->get('/dashboard', function () {
+    $user = auth()->user();
+    
+    // Redirect based on user role
+    if ($user->isStudent()) {
+        return redirect()->route('student.dashboard');
+    } elseif ($user->isTeacher()) {
+        return redirect()->route('teacher.dashboard');
+    }
+    
+    // Fallback for other users
+    return view('home');
+})->name('dashboard');
+
+
 // Protected Student Routes
 Route::middleware(['auth'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
@@ -39,7 +55,8 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/quizzes', [\App\Http\Controllers\Student\QuizController::class, 'index'])->name('quizzes.index');
     Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('quizzes.show');
     Route::post('/quizzes/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'submitQuiz'])->name('quizzes.submit');
-    
+    // Add this line after the existing quiz routes
+    Route::post('/quizzes/{quiz}/save-progress', [\App\Http\Controllers\Student\QuizController::class, 'saveProgress'])->name('quizzes.save-progress');
     // Weak areas
     Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])->name('weak-areas');
     Route::post('/weak-areas/enroll', [\App\Http\Controllers\Student\WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
