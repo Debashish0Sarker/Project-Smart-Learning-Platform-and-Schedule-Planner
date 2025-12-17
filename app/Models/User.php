@@ -15,8 +15,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // From Amio
-        'preferences', // From migration
+        'role',
+        'preferences',
     ];
 
     protected $hidden = [
@@ -54,6 +54,12 @@ class User extends Authenticatable
     public function enrolledCourses()
     {
         return $this->belongsToMany(Course::class, 'enrollments', 'student_id', 'course_id');
+    }
+
+    // Add this for submission tracker
+    public function quizResponses()
+    {
+        return $this->hasMany(QuizResponse::class);
     }
 
     public function isTeacher()

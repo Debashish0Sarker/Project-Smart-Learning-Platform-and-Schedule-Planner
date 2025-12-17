@@ -163,13 +163,20 @@ class QuizController extends Controller
             ];
         }
 
-        // Update QuizResponse
+        // Determine status
+        $status = 'submitted';
+        if ($quiz->due_date && now()->greaterThan($quiz->due_date)) {
+            $status = 'late';
+        }
+
+        // Update QuizResponse with status
         $quizResponse->update([
             'answers' => $submitted,
             'score' => $score,
             'percentage' => $total > 0 ? ($score / $total * 100) : 0,
             'submitted_at' => now(),
             'is_checked' => !$hasSubjective,
+            'status' => $status, // Add this line
         ]);
 
         // Save QuizAnswer records

@@ -56,8 +56,12 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/quizzes', [\App\Http\Controllers\Student\QuizController::class, 'index'])->name('quizzes.index');
     Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('quizzes.show');
     Route::post('/quizzes/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'submitQuiz'])->name('quizzes.submit');
-    // Add this line after the existing quiz routes
     Route::post('/quizzes/{quiz}/save-progress', [\App\Http\Controllers\Student\QuizController::class, 'saveProgress'])->name('quizzes.save-progress');
+    
+    // SUBMISSION TRACKER ROUTES - ADD THESE
+    Route::get('/submission-tracker', [\App\Http\Controllers\Student\SubmissionTrackerController::class, 'index'])->name('submission-tracker.index');
+    Route::get('/submission-tracker/{quizResponse}', [\App\Http\Controllers\Student\SubmissionTrackerController::class, 'show'])->name('submission-tracker.show');
+    
     // Weak areas
     Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])
         ->name('weak-areas');
@@ -71,6 +75,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
         Route::post('/generate', [\App\Http\Controllers\Student\PracticeQuizController::class, 'generate'])->name('generate');
         Route::post('/submit', [\App\Http\Controllers\Student\PracticeQuizController::class, 'submit'])->name('submit');
     });
+    
     // Schedule (simple view route)
     Route::get('/schedule', function () {
         return view('student.schedule');
@@ -91,6 +96,14 @@ Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function
     // Quizzes - RESTful resource (7 routes total)
     Route::resource('quizzes', \App\Http\Controllers\Teacher\QuizController::class);
     
+    // SUBMISSION MANAGEMENT ROUTES - ADD THESE
+    Route::get('/quizzes/{quiz}/submissions', [\App\Http\Controllers\Teacher\SubmissionController::class, 'quizSubmissions'])
+        ->name('quizzes.submissions');
+    Route::get('/submissions/{quizResponse}', [\App\Http\Controllers\Teacher\SubmissionController::class, 'showSubmission'])
+        ->name('submissions.show');
+    Route::post('/submissions/{quizResponse}/grade', [App\Http\Controllers\Teacher\SubmissionController::class, 'gradeSubmission'])
+        ->name('submissions.grade');
+    
     // Course Materials Routes - FIXED NAMES
     Route::get('/courses/{course}/materials', [\App\Http\Controllers\Teacher\ResourceController::class, 'index'])
         ->name('courses.materials.index');  // This becomes teacher.courses.materials.index
@@ -106,8 +119,3 @@ Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function
 Route::get('/feature3-test', function() {
     return 'Feature 3: Teacher Quiz Creation - Working';
 });
-
-// COMMENT OUT or REMOVE these problematic test routes
-// Route::get('/weak-areas-test', [\App\Http\Controllers\Student\WeakAreaController::class, 'test'])->name('weak-areas.test');
-// Route::get('/weak-areas/enroll-test/{courseId}', [\App\Http\Controllers\Student\WeakAreaController::class, 'enrollTest'])->name('weak-areas.enroll-test');
-// Route::get('/weak-areas/clear-enrollments', [\App\Http\Controllers\Student\WeakAreaController::class, 'clearTestEnrollments'])->name('weak-areas.clear-enrollments');

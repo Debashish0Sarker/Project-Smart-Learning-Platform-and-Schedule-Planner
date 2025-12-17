@@ -12,7 +12,7 @@ class Quiz extends Model
     protected $fillable = [
         'title', 'description', 'difficulty', 'course_id', 'teacher_id',
         'is_published', 'due_date', 'duration_minutes', 
-        'total_points', 'attempts_allowed'
+        'total_points', 'attempts_allowed', 'topic_tag' // Added topic_tag
     ];
 
     protected $casts = [
@@ -33,5 +33,22 @@ class Quiz extends Model
     public function questions()
     {
         return $this->hasMany(Question::class);
+    }
+
+    // Add these relationships for submission tracker
+    public function quizResponses()
+    {
+        return $this->hasMany(QuizResponse::class);
+    }
+
+    public function studentResponse($studentId)
+    {
+        return $this->quizResponses()->where('user_id', $studentId)->first();
+    }
+
+    // Helper method
+    public function isAvailable()
+    {
+        return $this->is_published;
     }
 }
