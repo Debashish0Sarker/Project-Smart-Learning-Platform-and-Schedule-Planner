@@ -102,4 +102,5 @@
             </div>
         </div>
     </div>
+    @include('student.partials.motivational-tip')
 </x-app-layout>
