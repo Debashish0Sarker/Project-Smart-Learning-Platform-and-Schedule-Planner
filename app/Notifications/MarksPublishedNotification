@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Notifications;
+
+use App\Models\Quiz;
+use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class MarksPublishedNotification extends Notification implements ShouldQueue
+{
+    use Queueable;
+
+    public $quiz;
+
+    public function __construct(Quiz $quiz)
+    {
+        $this->quiz = $quiz;
+    }
+
+    public function via($notifiable)
+    {
+        return ['database'];
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'title' => 'Quiz Marks Published',
+            'message' => "Marks for quiz '{$this->quiz->title}' have been published",
+            'url' => route('student.quizzes.show', $this->quiz->id),
+            'icon' => '📊',
+            'type' => 'marks_published',
+            'quiz_id' => $this->quiz->id,
+        ];
+    }
+}

@@ -93,8 +93,12 @@ class QuizController extends Controller
         }
     }
 
-    // Determine teacher id: prefer the currently authenticated teacher
-    $teacherId = auth()->id() ?? (\App\Models\User::where('role', 'teacher')->first()?->id ?? \App\Models\User::first()?->id ?? 1);
+    // Get first teacher (for development)
+    $teacher = \App\Models\User::where('role', 'teacher')->first();
+    if (!$teacher) {
+        // If no teacher exists, create one or use first user
+        $teacher = \App\Models\User::first();
+    }
 
     // Create quiz
     $quiz = Quiz::create([
@@ -102,7 +106,7 @@ class QuizController extends Controller
         'description' => $request->description,
         'difficulty' => $request->difficulty,
         'course_id' => $request->course_id,
-        'teacher_id' => $teacherId,
+        'teacher_id' => $teacher ? $teacher->id : 1,
         'due_date' => $request->due_date,
         'duration_minutes' => $request->duration_minutes,
         'is_published' => true,
@@ -116,7 +120,7 @@ class QuizController extends Controller
             'question_type' => $questionData['question_type'],
             'topic_tag' => $questionData['topic_tag'],
             'points' => $questionData['points'],
-            'teacher_id' => $teacherId,
+            'teacher_id' => $teacher ? $teacher->id : 1,
             'explanation' => $questionData['explanation'] ?? null,
         ]);
 
@@ -134,7 +138,7 @@ class QuizController extends Controller
         $quiz->questions()->save($question);
         $totalPoints += $questionData['points'];
     }
-    /*$enrolledStudents = User::where('role', 'student')
+    $enrolledStudents = User::where('role', 'student')
         ->whereHas('enrollments', function($query) use ($quiz) {
             $query->where('course_id', $quiz->course_id);
         })
@@ -142,7 +146,7 @@ class QuizController extends Controller
 
     foreach ($enrolledStudents as $student) {
         $student->notify(new QuizCreatedNotification($quiz));
-    }*/
+    }
     $allStudents = User::where('role', 'student')->get();
 
     foreach ($allStudents as $student) {

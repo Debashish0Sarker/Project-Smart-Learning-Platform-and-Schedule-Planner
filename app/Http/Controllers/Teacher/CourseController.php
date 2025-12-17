@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\CourseCreatedNotification;
+use App\Models\User;
 
 class CourseController extends Controller
 {
@@ -33,7 +35,14 @@ class CourseController extends Controller
         $validated['status'] = 'published';
 
         $course = Course::create($validated);
-        
+
+        // Send notification to all students
+        $allStudents = User::where('role', 'student')->get();
+
+        foreach ($allStudents as $student) {
+            $student->notify(new CourseCreatedNotification($course));
+        }
+
         return redirect()->route('teacher.courses.index')->with('success', 'Course created successfully!');
     }
     

@@ -39,7 +39,12 @@ class QuizController extends Controller
             return redirect('/student/dashboard')->with('error', 'Quiz not found');
         }
 
-        // Enrollment check removed: students can access quizzes regardless of enrollment
+        // Check if student is enrolled in the course
+        $isEnrolled = Auth::user()->enrolledCourses()->where('course_id', $quiz->course_id)->exists();
+        
+        if (!$isEnrolled) {
+            return redirect('/student/dashboard')->with('error', 'You are not enrolled in this course');
+        }
 
         // Check for existing active attempt
         $activeAttempt = QuizResponse::where('user_id', Auth::id())
@@ -88,13 +93,11 @@ class QuizController extends Controller
     {
         $submitted = $request->input('answers', []);
         $attemptId = $request->input('attempt_id');
-        // DEBUG: Check if teacher exists
-        \Log::info('Quiz submission attempt', [
-            'quiz_id' => $quiz->id,
-            'quiz_title' => $quiz->title,
-            'teacher_id' => $quiz->teacher_id,
-            'teacher_exists' => $quiz->teacher ? 'yes' : 'no',
-        ]);
+        // Notify teacher
+        $teacher = $quiz->teacher;
+        if ($teacher) {
+            $teacher->notify(new QuizSubmittedNotification($quiz, Auth::user()));
+        }
         // Verify attempt belongs to user
         $quizResponse = QuizResponse::where('id', $attemptId)
             ->where('user_id', Auth::id())
@@ -173,19 +176,6 @@ class QuizController extends Controller
             'submitted_at' => now(),
             'is_checked' => !$hasSubjective,
         ]);
-
-        // Notify teacher after successful submission/save
-        $teacher = $quiz->teacher;
-        if ($teacher) {
-            try {
-                $teacher->notifyNow(new QuizSubmittedNotification($quiz, Auth::user()));
-                \Log::info('Notification sent to teacher after submission', ['teacher_id' => $teacher->id, 'quiz_id' => $quiz->id, 'student_id' => Auth::id()]);
-            } catch (\Throwable $e) {
-                \Log::error('Failed to send quiz submitted notification after update', ['teacher_id' => $teacher->id ?? null, 'quiz_id' => $quiz->id, 'error' => $e->getMessage()]);
-            }
-        } else {
-            \Log::warning('No teacher found for quiz when trying to notify', ['quiz_id' => $quiz->id]);
-        }
 
         // Save QuizAnswer records
         foreach ($questions as $q) {

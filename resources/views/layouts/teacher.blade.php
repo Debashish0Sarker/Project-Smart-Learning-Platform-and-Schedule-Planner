@@ -24,6 +24,9 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth
+                        <!-- NOTIFICATION BELL FOR TEACHER - ADDED HERE -->
+                        @include('components.notification-bell')
+                        
                         <span class="text-gray-700">Hello, {{ auth()->user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
