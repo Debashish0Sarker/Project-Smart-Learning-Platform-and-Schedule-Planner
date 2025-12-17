@@ -60,6 +60,14 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     // Weak areas
     Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])->name('weak-areas');
     Route::post('/weak-areas/enroll', [\App\Http\Controllers\Student\WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
+
+    // Practice Quiz Routes
+    Route::prefix('practice-quiz')->name('practice-quiz.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
+        Route::get('/create', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
+        Route::post('/generate', [\App\Http\Controllers\Student\PracticeQuizController::class, 'generate'])->name('generate');
+        Route::post('/submit', [\App\Http\Controllers\Student\PracticeQuizController::class, 'submit'])->name('submit');
+    });
 });
 
 // Protected Teacher Routes
