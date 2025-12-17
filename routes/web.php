@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\Student\WeakAreaController;
 
 // Public Routes
 Route::get('/', function () {
@@ -58,8 +59,10 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     // Add this line after the existing quiz routes
     Route::post('/quizzes/{quiz}/save-progress', [\App\Http\Controllers\Student\QuizController::class, 'saveProgress'])->name('quizzes.save-progress');
     // Weak areas
-    Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])->name('weak-areas');
-    Route::post('/weak-areas/enroll', [\App\Http\Controllers\Student\WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
+    Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])
+        ->name('weak-areas');
+    Route::post('/weak-areas/enroll', [\App\Http\Controllers\Student\WeakAreaController::class, 'enroll'])
+        ->name('weak-areas.enroll');
 
     // Practice Quiz Routes
     Route::prefix('practice-quiz')->name('practice-quiz.')->group(function () {
@@ -68,7 +71,15 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
         Route::post('/generate', [\App\Http\Controllers\Student\PracticeQuizController::class, 'generate'])->name('generate');
         Route::post('/submit', [\App\Http\Controllers\Student\PracticeQuizController::class, 'submit'])->name('submit');
     });
+    // Schedule (simple view route)
+    Route::get('/schedule', function () {
+        return view('student.schedule');
+    })->name('schedule');
 });
+
+// Also provide top-level routes so `/weak-areas` resolves (and blade route('weak-areas') works)
+Route::middleware(['auth'])->get('/weak-areas', [WeakAreaController::class, 'show'])->name('weak-areas');
+Route::middleware(['auth'])->post('/weak-areas/enroll', [WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
 
 // Protected Teacher Routes
 Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function () {

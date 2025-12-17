@@ -26,12 +26,17 @@ class WeakAreaController extends Controller
         
         // Get enrolled courses for stats
         $enrolledCourses = $this->getEnrolledCourses($studentId);
-        
+        // Determine if the student has quiz response data in the database
+        // Note: quiz_responses table uses `user_id` column (not `student_id`)
+        $hasQuizData = DB::table('quiz_responses')
+            ->where('user_id', $studentId)
+            ->exists();
+
         return view('student.weak-areas', [
             'weakTopics' => $weakTopics,
             'recommendedCourses' => $recommendedCourses,
             'enrolledCourses' => $enrolledCourses,
-            'hasQuizData' => false,
+            'hasQuizData' => $hasQuizData,
         ]);
     }
     
@@ -187,7 +192,7 @@ class WeakAreaController extends Controller
             ->exists();
             
         if ($exists) {
-            return redirect()->route('weak-areas')
+            return redirect()->route('weak-areas')  // This is correct
                 ->with('info', 'You are already enrolled in this course.');
         }
         
@@ -199,7 +204,7 @@ class WeakAreaController extends Controller
             'enrolled_at' => now(),
         ]);
         
-        return redirect()->route('weak-areas')
+        return redirect()->route('weak-areas')  // This is correct
             ->with('success', 'Successfully enrolled in the course!');
     }
     

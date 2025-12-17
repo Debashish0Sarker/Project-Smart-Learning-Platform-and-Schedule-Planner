@@ -22,10 +22,8 @@
                     <span class="text-xl font-bold text-gray-800">Smart Learning</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="/" class="text-gray-600 hover:text-blue-600">Dashboard</a>
-                    <a href="/" class="text-gray-600 hover:text-blue-600">Courses</a>
-                    <a href="{{ route('weak-areas') }}" class="text-blue-600 font-medium">Weak Areas</a>
-                    <a href="/" class="text-gray-600 hover:text-blue-600">Schedule</a>
+                    <a href="{{ route('student.dashboard') }}" class="text-gray-600 hover:text-blue-600">Dashboard</a>
+                    <a href="{{ route('student.weak-areas') }}" class="text-blue-600 font-medium">Weak Areas</a>
                     <div class="flex items-center space-x-2">
                         <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
                         <span class="text-gray-700">Student</span>
@@ -238,7 +236,7 @@
                                     <a href="#" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
                                         View Course Details
                                     </a>
-                                    <form action="{{ route('weak-areas.enroll') }}" method="POST">
+                                    <form action="{{ route('student.weak-areas.enroll') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="course_id" value="{{ $course->id }}">
                                         <button type="submit" 
