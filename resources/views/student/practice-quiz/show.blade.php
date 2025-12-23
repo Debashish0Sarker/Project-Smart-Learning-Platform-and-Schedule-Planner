@@ -1,13 +1,19 @@
 {{-- resources/views/student/practice-quiz/show.blade.php --}}
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Practice Quiz: {{ $category }}
-        </h2>
-    </x-slot>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Practice Quiz: {{ $category }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="font-sans antialiased bg-gray-100">
+    <div class="py-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <header class="mb-4">
+                <h1 class="text-2xl font-semibold text-gray-800">Practice Quiz: {{ $category }}</h1>
+            </header>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <form action="{{ route('student.practice-quiz.submit') }}" method="POST" id="quizForm">
                 @csrf
                 
@@ -53,7 +59,7 @@
                 @endforeach
                 
                 <div class="sticky bottom-0 bg-white border-t border-gray-200 p-4 shadow-lg">
-                    <div class="max-w-7xl mx-auto flex justify-between items-center">
+                    <div class="max-w-4xl mx-auto flex justify-between items-center">
                         <span class="text-gray-600">{{ count($questions) }} questions</span>
                         <button type="submit" 
                                 class="inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2"
@@ -98,4 +104,5 @@
             }
         });
     </script>
-</x-app-layout>
+</body>
+</html>

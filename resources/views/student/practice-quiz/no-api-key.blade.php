@@ -1,13 +1,19 @@
 {{-- resources/views/student/practice-quiz/no-api-key.blade.php --}}
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            QuizAPI Configuration Required
-        </h2>
-    </x-slot>
-
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QuizAPI Configuration Required</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="font-sans antialiased bg-gray-100">
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <header class="mb-4 text-center">
+                <h1 class="text-2xl font-semibold text-gray-800">QuizAPI Configuration Required</h1>
+            </header>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200 text-center">
                     <div class="text-6xl mb-4">🔑</div>
@@ -62,4 +68,5 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</body>
+</html>

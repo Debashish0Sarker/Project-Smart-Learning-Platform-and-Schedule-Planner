@@ -22,13 +22,9 @@ class DashboardController extends Controller
         $enrolledCourses = $user->enrolledCourses()->with(['quizzes' => function($q) {
             $q->where('is_published', true);
         }])->get();
-        
-        // Collect all upcoming quizzes
-        $upcomingQuizzes = collect();
-        foreach ($enrolledCourses as $course) {
-            $upcomingQuizzes = $upcomingQuizzes->merge($course->quizzes);
-        }
-        
-        return view('student.dashboard', compact('enrolledCourses', 'upcomingQuizzes'));
+
+        // Get enrolled courses with quizzes
+        $upcomingQuizzes = Quiz::where('is_published', true)->with('course')->get();
+        return view('student.dashboard', compact('upcomingQuizzes'));
     }
 }
