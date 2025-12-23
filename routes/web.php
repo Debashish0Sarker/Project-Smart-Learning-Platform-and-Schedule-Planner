@@ -95,7 +95,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/schedule', function () {
         return view('student.schedule');
     })->name('schedule');
-});
+//});
 
 // Also provide top-level routes so `/weak-areas` resolves (and blade route('weak-areas') works)
 Route::middleware(['auth'])->get('/weak-areas', [WeakAreaController::class, 'show'])->name('weak-areas');
