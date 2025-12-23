@@ -20,18 +20,19 @@ class DashboardController extends Controller
             Auth::logout();
             return redirect('/login');
         }
-        
+        //this block is commented out
         // Get enrolled courses with quizzes (keep existing logic)
-        $enrolledCourses = $user->enrolledCourses()->with(['quizzes' => function($q) {
-            $q->where('is_published', true);
-        }])->get();
+        //$enrolledCourses = $user->enrolledCourses()->with(['quizzes' => function($q) {
+         //    $q->where('is_published', true);
+        //}])->get();
         
         // Collect all upcoming quizzes
-        $upcomingQuizzes = collect();
-        foreach ($enrolledCourses as $course) {
-            $upcomingQuizzes = $upcomingQuizzes->merge($course->quizzes);
-        }
-        
+        //$upcomingQuizzes = collect();
+        //foreach ($enrolledCourses as $course) {
+        //    $upcomingQuizzes = $upcomingQuizzes->merge($course->quizzes);
+        //}
+        //replaceing this block with below code
+        $upcomingQuizzes = Quiz::where('is_published', true)->with('course')->get();
         // NEW: Get motivational tip
         $motivationalTip = MotivationalTipController::getTip();
         
@@ -45,7 +46,7 @@ class DashboardController extends Controller
             ->get();
         
         return view('student.dashboard', compact(
-            'enrolledCourses', 
+            //'enrolledCourses', not needed anymore
             'upcomingQuizzes',
             'motivationalTip',
             'staticSchedule',
