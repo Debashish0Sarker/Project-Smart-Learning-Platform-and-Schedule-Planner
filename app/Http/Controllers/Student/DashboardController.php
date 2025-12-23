@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Quiz;
 
 class DashboardController extends Controller
 {
@@ -23,9 +22,13 @@ class DashboardController extends Controller
         $enrolledCourses = $user->enrolledCourses()->with(['quizzes' => function($q) {
             $q->where('is_published', true);
         }])->get();
-
-        // Get enrolled courses with quizzes
-        $upcomingQuizzes = Quiz::where('is_published', true)->with('course')->get();
-        return view('student.dashboard', compact('upcomingQuizzes'));
+        
+        // Collect all upcoming quizzes
+        $upcomingQuizzes = collect();
+        foreach ($enrolledCourses as $course) {
+            $upcomingQuizzes = $upcomingQuizzes->merge($course->quizzes);
+        }
+        
+        return view('student.dashboard', compact('enrolledCourses', 'upcomingQuizzes'));
     }
 }

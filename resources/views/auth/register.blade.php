@@ -460,21 +460,8 @@
                                 </div>
                             </label>
                             
-                            <!-- Admin -->
-                            <label class="role-option">
-                                <input 
-                                    type="radio" 
-                                    name="role" 
-                                    value="admin" 
-                                    {{ old('role') == 'admin' ? 'checked' : '' }}
-                                    required
-                                >
-                                <div class="role-card">
-                                    <i class="fas fa-user-shield role-icon"></i>
-                                    <p class="font-medium">Admin</p>
-                                    <p class="text-sm text-gray-500 mt-1">System administration</p>
-                                </div>
-                            </label>
+                            <!-- Admin removed-->
+                            
                         </div>
                         @if($errors->has('role'))
                             <div class="error-message">

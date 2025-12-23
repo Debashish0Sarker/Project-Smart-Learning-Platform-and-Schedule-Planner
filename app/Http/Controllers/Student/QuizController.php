@@ -14,22 +14,11 @@ use App\Notifications\QuizSubmittedNotification;
 class QuizController extends Controller
 {
     public function index()
-    {
-        $user = Auth::user();
-        
-        // Get enrolled courses with their quizzes
-        $enrolledCourses = $user->enrolledCourses()->with(['quizzes' => function($query) {
-            $query->where('is_published', true);
-        }])->get();
-        
-        // Collect all quizzes
-        $quizzes = collect();
-        foreach ($enrolledCourses as $course) {
-            $quizzes = $quizzes->merge($course->quizzes);
-        }
-        
-        return view('student.quizzes.index', compact('quizzes'));
+   {
+    $quizzes = Quiz::where('is_published', true)->with('course')->get();
+    return view('student.quizzes.index', compact('quizzes'));
     }
+
 
     public function show($quiz_id)
     {

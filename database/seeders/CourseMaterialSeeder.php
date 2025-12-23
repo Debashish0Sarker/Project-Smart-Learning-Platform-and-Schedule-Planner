@@ -22,10 +22,10 @@ class CourseMaterialSeeder extends Seeder
                     'teacher_id' => $course->teacher_id,
                     'title' => "{$course->code} {$type} material",
                     'type' => $type,
-                    'url' => $type === 'pdf' ? '/storage/materials/sample.pdf' : 
-                             ($type === 'video' ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' : 
-                              'https://example.com/resource'),
-                    'file_path' => $type === 'pdf' ? 'materials/sample.pdf' : null,
+                    'url' => $type === 'pdf' ? 'https://www.africau.edu/images/default/sample.pdf' : 
+                            ($type === 'video' ? 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' : 
+                            'https://laravel.com/docs'),
+                    'file_path' => null, // Change this to null for ALL types
                     'description' => "This is a sample {$type} material for {$course->title}",
                     'order' => $index,
                     'is_published' => true,

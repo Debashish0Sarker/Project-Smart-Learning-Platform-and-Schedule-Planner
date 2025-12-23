@@ -62,6 +62,41 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::post('/quizzes/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'submitQuiz'])->name('quizzes.submit');
     Route::post('/quizzes/{quiz}/save-progress', [\App\Http\Controllers\Student\QuizController::class, 'saveProgress'])->name('quizzes.save-progress');
     
+
+        // Motivational Tip Routes
+    Route::get('/motivational-tip/refresh', function() {
+        // Clear cache and get new tip
+        Cache::forget('motivational_tip');
+        $tip = \App\Http\Controllers\Student\MotivationalTipController::getTip();
+        return response()->json(['success' => true, 'tip' => $tip]);
+    })->name('motivational-tip.refresh');
+
+    // Course Materials Routes
+    Route::get('/courses/{course}/materials', [\App\Http\Controllers\Student\CourseMaterialController::class, 'index'])
+        ->name('course.materials');
+        
+    Route::get('/materials/{material}', [\App\Http\Controllers\Student\CourseMaterialController::class, 'show'])
+        ->name('material.show');
+        
+    Route::get('/materials/{material}/download', [\App\Http\Controllers\Student\CourseMaterialController::class, 'download'])
+        ->name('material.download');
+        
+    Route::post('/materials/{material}/mark-viewed', function($material) {
+        // Placeholder for marking material as viewed
+        return response()->json(['success' => true]);
+    })->name('material.mark-viewed');
+
+    // Courses index page (full list)
+    Route::get('/courses', function() {
+        $courses = \App\Models\Course::where('status', 'published')
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+        return view('student.courses-index', compact('courses'));
+    })->name('courses.index');
+
+
+
+    
     // SUBMISSION TRACKER ROUTES - ADD THESE
     Route::get('/submission-tracker', [\App\Http\Controllers\Student\SubmissionTrackerController::class, 'index'])->name('submission-tracker.index');
     Route::get('/submission-tracker/{quizResponse}', [\App\Http\Controllers\Student\SubmissionTrackerController::class, 'show'])->name('submission-tracker.show');

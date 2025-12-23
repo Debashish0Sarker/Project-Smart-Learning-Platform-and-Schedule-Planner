@@ -285,4 +285,5 @@
         });
     </script>
     @endif
+    @include('student.partials.motivational-tip')
 </x-app-layout>
