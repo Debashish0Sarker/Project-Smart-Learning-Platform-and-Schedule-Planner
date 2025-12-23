@@ -111,6 +111,14 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::delete('/notifications/{notification}', [\App\Http\Controllers\Student\NotificationController::class, 'delete'])->name('notifications.delete');
     Route::delete('/notifications', [\App\Http\Controllers\Student\NotificationController::class, 'clearAll'])->name('notifications.clear-all');
 
+    // Practice Quiz Routes (student-scoped)
+    Route::prefix('practice-quiz')->name('practice-quiz.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
+        Route::get('/create', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
+        Route::post('/generate', [\App\Http\Controllers\Student\PracticeQuizController::class, 'generate'])->name('generate');
+        Route::post('/submit', [\App\Http\Controllers\Student\PracticeQuizController::class, 'submit'])->name('submit');
+    });
+
 });
     
     Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])
@@ -119,12 +127,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
         ->name('weak-areas.enroll');
 
     // Practice Quiz Routes
-    Route::prefix('practice-quiz')->name('practice-quiz.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
-        Route::get('/create', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
-        Route::post('/generate', [\App\Http\Controllers\Student\PracticeQuizController::class, 'generate'])->name('generate');
-        Route::post('/submit', [\App\Http\Controllers\Student\PracticeQuizController::class, 'submit'])->name('submit');
-    });
+    // NOTE: moved into student group earlier to keep routes under /student and namespaced as student.practice-quiz.*
     
     // Schedule (simple view route)
     Route::get('/schedule', function () {

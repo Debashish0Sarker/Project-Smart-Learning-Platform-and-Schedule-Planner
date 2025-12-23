@@ -15,6 +15,18 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    <x-nav-link href="/student/weak-areas#" :active="request()->is('student/weak-areas*')">
+                        {{ __('Weak Areas') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('student.practice-quiz.create')" :active="request()->is('student/practice-quiz*')">
+                        {{ __('Practice Quiz') }}
+                    </x-nav-link>
+
+                    <x-nav-link href="/student/submission-tracker" :active="request()->is('student/submission-tracker*')">
+                        {{ __('Submission Tracker') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -79,6 +91,18 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link href="/student/weak-areas#" :active="request()->is('student/weak-areas*')">
+                {{ __('Weak Areas') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('student.practice-quiz.create')" :active="request()->is('student/practice-quiz*')">
+                {{ __('Practice Quiz') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link href="/student/submission-tracker" :active="request()->is('student/submission-tracker*')">
+                {{ __('Submission Tracker') }}
             </x-responsive-nav-link>
         </div>
 
