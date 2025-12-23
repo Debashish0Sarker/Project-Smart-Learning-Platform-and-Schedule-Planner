@@ -8,14 +8,17 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
         $user = Auth::user();
-        
-        // Redirect if not teacher
-        if (!$user->isTeacher()) {
+        // If no user or not a teacher, redirect to login
+        if (!$user || !method_exists($user, 'isTeacher') || !$user->isTeacher()) {
             Auth::logout();
-            return redirect('/login');
+            return redirect()->route('login');
         }
         
         $courses = $user->coursesTeaching()->withCount(['students', 'quizzes'])->get();

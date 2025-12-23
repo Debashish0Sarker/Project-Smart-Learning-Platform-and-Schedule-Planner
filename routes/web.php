@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
+use App\Http\Controllers\Teacher\NotificationController as TeacherNotificationController;
 use App\Http\Controllers\Student\WeakAreaController;
 
 // Public Routes
@@ -50,6 +53,7 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     
     // Courses
     Route::get('/courses', [\App\Http\Controllers\Student\CourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses/{course}', [\App\Http\Controllers\Student\CourseController::class, 'showDetails'])->name('courses.details');
     Route::post('/courses/enroll', [\App\Http\Controllers\Student\CourseController::class, 'enroll'])->name('courses.enroll');
     
     // Quizzes
@@ -63,6 +67,17 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::get('/submission-tracker/{quizResponse}', [\App\Http\Controllers\Student\SubmissionTrackerController::class, 'show'])->name('submission-tracker.show');
     
     // Weak areas
+    Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])->name('weak-areas');
+    Route::post('/weak-areas/enroll', [\App\Http\Controllers\Student\WeakAreaController::class, 'enroll'])->name('weak-areas.enroll');
+    // Add notification routes HERE (after other student routes):
+    Route::get('/notifications', [\App\Http\Controllers\Student\NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [\App\Http\Controllers\Student\NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Student\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\Student\NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::delete('/notifications', [\App\Http\Controllers\Student\NotificationController::class, 'clearAll'])->name('notifications.clear-all');
+
+});
+    
     Route::get('/weak-areas', [\App\Http\Controllers\Student\WeakAreaController::class, 'show'])
         ->name('weak-areas');
     Route::post('/weak-areas/enroll', [\App\Http\Controllers\Student\WeakAreaController::class, 'enroll'])
@@ -113,9 +128,23 @@ Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function
         
     Route::post('/courses/{course}/materials', [\App\Http\Controllers\Teacher\ResourceController::class, 'store'])
         ->name('courses.materials.store');  // This becomes teacher.courses.materials.store
+         // Add teacher notification routes
+    Route::get('/notifications', [\App\Http\Controllers\Teacher\NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [\App\Http\Controllers\Teacher\NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Teacher\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\Teacher\NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::delete('/notifications', [\App\Http\Controllers\Teacher\NotificationController::class, 'clearAll'])->name('notifications.clear-all');
 });
+
 
 // Test routes (development only - can remove later)
 Route::get('/feature3-test', function() {
     return 'Feature 3: Teacher Quiz Creation - Working';
 });
+
+// COMMENT OUT or REMOVE these problematic test routes
+// Route::get('/weak-areas-test', [\App\Http\Controllers\Student\WeakAreaController::class, 'test'])->name('weak-areas.test');
+// Route::get('/weak-areas/enroll-test/{courseId}', [\App\Http\Controllers\Student\WeakAreaController::class, 'enrollTest'])->name('weak-areas.enroll-test');
+// Route::get('/weak-areas/clear-enrollments', [\App\Http\Controllers\Student\WeakAreaController::class, 'clearTestEnrollments'])->name('weak-areas.clear-enrollments');
+// Add these routes after the existing student/teacher routes
+
