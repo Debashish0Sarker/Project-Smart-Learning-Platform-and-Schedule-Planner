@@ -149,16 +149,16 @@
                                     </div>
 
                                     <!-- Action -->
-                                    <div class="mt-auto">
+                                    <div class="mt-auto space-y-2">
                                         @if($material->type == 'video')
                                             <a href="{{ route('student.material.show', $material) }}"
                                                class="block w-full text-center px-4 py-2 bg-red-600 text-white action-btn hover:bg-red-700">
                                                 ▶ Watch Video
                                             </a>
                                         @elseif($material->type == 'pdf')
-                                            <a href="{{ route('student.material.download', $material) }}"
+                                            <a href="{{ route('student.material.show', $material) }}"
                                                class="block w-full text-center px-4 py-2 bg-blue-600 text-white action-btn hover:bg-blue-700">
-                                                ⬇ Download PDF
+                                                📄 View PDF
                                             </a>
                                         @else
                                             <a href="{{ route('student.material.show', $material) }}"
@@ -166,6 +166,12 @@
                                                 View Material
                                             </a>
                                         @endif
+
+                                        <!-- Download button for all materials -->
+                                        <a href="{{ route('student.material.download', $material) }}"
+                                           class="block w-full text-center px-4 py-2 bg-green-600 text-white action-btn hover:bg-green-700">
+                                            ⬇ Download
+                                        </a>
                                     </div>
                                 </div>
                             @endforeach

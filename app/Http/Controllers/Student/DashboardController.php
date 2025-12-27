@@ -39,11 +39,10 @@ class DashboardController extends Controller
         // NEW: Static schedule (decoration)
         $staticSchedule = $this->getStaticSchedule();
         
-        // NEW: Get available courses (limit to 6 for dashboard)
+        // NEW: Get available courses (paginate for dashboard)
         $availableCourses = Course::where('status', 'published')
             ->orderBy('created_at', 'desc')
-            ->take(6)
-            ->get();
+            ->paginate(6);
         
         return view('student.dashboard', compact(
             //'enrolledCourses', not needed anymore

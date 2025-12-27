@@ -105,11 +105,11 @@
                                     </div>
                                 @endforeach
                                 
-                                @if($availableCourses->count() > 5)
+                                @if(method_exists($availableCourses, 'total') ? $availableCourses->total() > 5 : $availableCourses->count() > 5)
                                     <div class="text-center mt-4">
                                         <a href="{{ route('student.courses.index') }}" 
                                            class="text-blue-600 hover:text-blue-800 text-sm">
-                                            View all {{ $availableCourses->total() }} courses →
+                                           View all {{ method_exists($availableCourses, 'total') ? $availableCourses->total() : $availableCourses->count() }} courses →
                                         </a>
                                     </div>
                                 @endif

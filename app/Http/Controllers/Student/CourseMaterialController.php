@@ -32,24 +32,24 @@ class CourseMaterialController extends Controller
         if ($material->course->status !== 'published' || !$material->is_published) {
             abort(404, 'Material not available');
         }
-        
-        // If no URL exists, try to serve from file_path
-        if ($material->file_path && Storage::exists($material->file_path)) {
-            // For videos: stream in browser
-            if ($material->type == 'video') {
-                return response()->file(storage_path('app/' . $material->file_path));
+        // If a local file exists on the public disk, serve it appropriately
+        if ($material->file_path && Storage::disk('public')->exists($material->file_path)) {
+            $fullPath = Storage::disk('public')->path($material->file_path);
+
+            // Inline-display types: videos, images, PDFs
+            if (in_array($material->type, ['video', 'image', 'pdf'])) {
+                return response()->file($fullPath);
             }
-            // For others: show a simple view
-            abort(404, 'Please use the download button for this file');
+
+            // For other file types (documents, etc.), force download
+            return response()->download($fullPath);
         }
 
-        // REDIRECT TO URL FOR ALL MATERIALS (videos, links, PDFs for viewing)
+        // If an external URL is provided, redirect there
         if ($material->url) {
             return redirect()->away($material->url);
         }
-        
-        
-        
+
         abort(404, 'Material content not available');
     }
     
@@ -61,12 +61,12 @@ class CourseMaterialController extends Controller
         }
         
 
-        // FOR LOCAL FILES: Download from storage
-        if ($material->file_path && Storage::exists($material->file_path)) {
+        // FOR LOCAL FILES: Download from public disk
+        if ($material->file_path && Storage::disk('public')->exists($material->file_path)) {
             $extension = pathinfo($material->file_path, PATHINFO_EXTENSION);
             $downloadName = str_replace(' ', '_', $material->title) . '.' . $extension;
             
-            return Storage::download($material->file_path, $downloadName);
+            return Storage::disk('public')->download($material->file_path, $downloadName);
         }
 
         // FOR PDFs WITH URL: Redirect to URL (will auto-download)
