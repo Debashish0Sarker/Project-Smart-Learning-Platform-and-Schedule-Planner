@@ -6,6 +6,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseResourceController;
 use App\Http\Controllers\StudentCourseController;
 use App\Http\Controllers\AnalyticController;
+use App\Http\Controllers\API\PushController;
 
 
 Route::post('/courses', [CourseController::class, 'store']);

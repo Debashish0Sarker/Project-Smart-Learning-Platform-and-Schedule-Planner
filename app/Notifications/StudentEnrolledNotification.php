@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class StudentEnrolledNotification extends Notification 
 {
@@ -23,7 +24,7 @@ class StudentEnrolledNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toDatabase($notifiable)
@@ -37,5 +38,10 @@ class StudentEnrolledNotification extends Notification
             'course_id' => $this->course->id,
             'student_id' => $this->student->id,
         ];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage($this->toDatabase($notifiable));
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Quiz;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class MarksPublishedNotification extends Notification implements ShouldQueue
 {
@@ -20,7 +21,7 @@ class MarksPublishedNotification extends Notification implements ShouldQueue
 
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toDatabase($notifiable)
@@ -33,5 +34,10 @@ class MarksPublishedNotification extends Notification implements ShouldQueue
             'type' => 'marks_published',
             'quiz_id' => $this->quiz->id,
         ];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage($this->toDatabase($notifiable));
     }
 }

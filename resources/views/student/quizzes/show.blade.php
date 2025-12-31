@@ -119,7 +119,15 @@
                             </div>
 
                             @if($question->question_type === 'mcq')
-                                @php $options = json_decode($question->options, true); @endphp
+                                @php
+                                    $options = $question->options;
+                                    if (is_string($options)) {
+                                        $options = json_decode($options, true) ?? [];
+                                    }
+                                    if (!is_array($options)) {
+                                        $options = [];
+                                    }
+                                @endphp
                                 <div class="space-y-3">
                                     @foreach($options as $option)
                                         <label class="option-card">

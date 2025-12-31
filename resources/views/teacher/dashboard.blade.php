@@ -7,6 +7,74 @@
 
     <h1 class="text-3xl font-bold mb-6">Teacher Dashboard</h1>
     
+    <!-- Student Search -->
+    <div class="mb-6">
+        <form method="GET" action="{{ route('teacher.dashboard') }}" class="flex gap-2">
+            <input name="student" type="text" placeholder="Search student by name..." value="{{ old('student', $searchQuery ?? '') }}"
+                   class="flex-1 border rounded px-3 py-2" />
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
+            @if(!empty($searchQuery))
+                <a href="{{ route('teacher.dashboard') }}" class="ml-2 px-4 py-2 bg-gray-100 rounded text-sm">Clear</a>
+            @endif
+        </form>
+    </div>
+
+    {{-- Search Results --}}
+    @if(isset($searchQuery))
+        <div class="bg-white shadow p-6 rounded-xl mb-8">
+            <h3 class="text-lg font-semibold mb-4">Search results for "{{ $searchQuery }}"</h3>
+
+            @if($students && $students->count() > 0)
+                <div class="space-y-4">
+                    @foreach($students as $student)
+                        <div class="border rounded p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-800">{{ $student->name }}</div>
+                                    <div class="text-sm text-gray-500">{{ $student->email }}</div>
+                                </div>
+                                <div class="text-sm text-gray-600">Student</div>
+                            </div>
+
+                            <div class="mt-3">
+                                @if($student->quizResponses && $student->quizResponses->count() > 0)
+                                    <div class="space-y-2">
+                                        @foreach($student->quizResponses as $resp)
+                                            <div class="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                                <div>
+                                                    <div class="font-medium text-sm">{{ $resp->quiz->title ?? 'Quiz' }}</div>
+                                                    <div class="text-xs text-gray-500">
+                                                        @if($resp->submitted_at)
+                                                            Submitted: {{ $resp->submitted_at->format('Y-m-d H:i') }}
+                                                        @else
+                                                            Not Submitted
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    @if($resp->submitted_at)
+                                                        <a href="{{ route('teacher.submissions.show', $resp) }}"
+                                                           class="text-blue-600 hover:underline text-sm">View Result</a>
+                                                    @else
+                                                        <span class="text-sm text-gray-500">No Submission</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-sm text-gray-500">No submissions for your courses.</div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-gray-500">No students found.</div>
+            @endif
+        </div>
+    @endif
+
     <!-- Navigation Buttons -->
     <div class="flex gap-4 mb-6">
         <a href="{{ route('teacher.courses.create') }}"

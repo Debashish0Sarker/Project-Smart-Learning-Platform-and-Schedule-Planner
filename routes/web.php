@@ -8,6 +8,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
 use App\Http\Controllers\Teacher\NotificationController as TeacherNotificationController;
 use App\Http\Controllers\Student\WeakAreaController;
+use App\Http\Controllers\OneSignalController;
 
 // Public Routes
 Route::get('/', function () {
@@ -110,6 +111,10 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
     Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Student\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::delete('/notifications/{notification}', [\App\Http\Controllers\Student\NotificationController::class, 'delete'])->name('notifications.delete');
     Route::delete('/notifications', [\App\Http\Controllers\Student\NotificationController::class, 'clearAll'])->name('notifications.clear-all');
+
+    // OneSignal web push: register player id and send-test
+    Route::post('/onesignal/register', [OneSignalController::class, 'register'])->name('onesignal.register');
+    Route::post('/onesignal/send-test', [OneSignalController::class, 'sendTest'])->name('onesignal.send-test');
 
     // Practice Quiz Routes (student-scoped)
     Route::prefix('practice-quiz')->name('practice-quiz.')->group(function () {

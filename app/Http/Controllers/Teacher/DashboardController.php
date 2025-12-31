@@ -12,7 +12,7 @@ class DashboardController extends Controller
     {
         $this->middleware('auth');
     }
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         // If no user or not a teacher, redirect to login
@@ -22,7 +22,21 @@ class DashboardController extends Controller
         }
         
         $courses = $user->coursesTeaching()->withCount(['students', 'quizzes'])->get();
-        
-        return view('teacher.dashboard', compact('courses'));
+
+        $students = collect();
+        $searchQuery = $request->query('student');
+        if ($searchQuery) {
+            $courseIds = $courses->pluck('id')->toArray();
+
+            $students = \App\Models\User::where('role', 'student')
+                ->where('name', 'like', "%{$searchQuery}%")
+                ->with(['quizResponses' => function($q) use ($courseIds) {
+                    $q->whereHas('quiz', function($qq) use ($courseIds) {
+                        $qq->whereIn('course_id', $courseIds);
+                    })->with('quiz')->orderBy('submitted_at', 'desc');
+                }])->get();
+        }
+
+        return view('teacher.dashboard', compact('courses', 'students', 'searchQuery'));
     }
 }

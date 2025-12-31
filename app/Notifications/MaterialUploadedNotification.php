@@ -6,6 +6,7 @@ use App\Models\CourseMaterial;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class MaterialUploadedNotification extends Notification
 {
@@ -20,7 +21,7 @@ class MaterialUploadedNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toDatabase($notifiable)
@@ -36,5 +37,10 @@ class MaterialUploadedNotification extends Notification
             'material_id' => $this->material->id,
             'course_id' => $course->id,
         ];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage($this->toDatabase($notifiable));
     }
 }
