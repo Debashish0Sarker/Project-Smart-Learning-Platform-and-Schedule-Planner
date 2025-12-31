@@ -1,4 +1,4 @@
-
+[file name]: course-materials.blade.php
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -202,26 +202,6 @@
             box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
         }
 
-        .secondary-button {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 500;
-            transition: var(--transition-default);
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-
-        .secondary-button:hover {
-            background: #e2e8f0;
-            transform: translateY(-1px);
-        }
-
         @keyframes fadeInUp {
             from { 
                 opacity: 0; 
@@ -257,15 +237,6 @@
             background: linear-gradient(90deg, #10b981, #34d399);
             border-radius: 3px;
             transition: width 1s ease;
-        }
-
-        .motivation-card {
-            background: linear-gradient(135deg, #e0e7ff, #ede9fe);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            border: none;
-            margin-bottom: 1.5rem;
-            border-left: 6px solid var(--primary-color);
         }
     </style>
 </head>
@@ -563,19 +534,16 @@
                 <div class="ml-4">
                     <h3 class="text-lg font-medium text-gray-900">
                         <i class="fas fa-graduation-cap mr-2"></i>
-                        Daily Motivation
+                        Learning Tip
                     </h3>
-                    <p class="mt-2 text-gray-700 italic text-lg motivational-tip-text">
-                        @if(isset($motivationalTip) && $motivationalTip)
-                            "{{ $motivationalTip }}"
-                        @else
-                            "The beautiful thing about learning is that no one can take it away from you."
-                        @endif
+                    <p class="mt-2 text-gray-700">
+                        "Consistent daily study, even for just 30 minutes, is more effective than cramming. 
+                        Make use of all available materials to reinforce your understanding."
                     </p>
-                    <button onclick="refreshTip()" class="mt-3 text-sm text-indigo-600 hover:text-indigo-800 flex items-center font-medium">
-                        <i class="fas fa-sync-alt mr-2"></i>
-                        Get New Tip
-                    </button>
+                    <div class="mt-3 text-sm text-gray-600">
+                        <i class="fas fa-star mr-2 text-yellow-500"></i>
+                        Tip: Watch videos first, then review PDFs for detailed concepts
+                    </div>
                 </div>
             </div>
         </div>
@@ -655,54 +623,6 @@
             .catch(err => {
                 console.error('Error marking as viewed:', err);
             });
-        }
-
-        function refreshTip() {
-            const button = event.target;
-            const originalContent = button.innerHTML;
-            
-            // Show loading state
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
-            button.disabled = true;
-
-            fetch('{{ route("student.motivational-tip.refresh") }}')
-                .then(response => response.json())
-                .then(data => {
-                    if(data.success) {
-                        // Update the tip text
-                        const tipElement = document.querySelector('.motivational-tip-text');
-                        if(tipElement) {
-                            tipElement.textContent = '"' + data.tip + '"';
-                            
-                            // Add fade animation
-                            tipElement.style.opacity = '0';
-                            tipElement.style.transform = 'translateY(10px)';
-                            
-                            setTimeout(() => {
-                                tipElement.style.transition = 'all 0.3s ease';
-                                tipElement.style.opacity = '1';
-                                tipElement.style.transform = 'translateY(0)';
-                            }, 50);
-                        }
-                        
-                        // Restore button
-                        button.innerHTML = '<i class="fas fa-check mr-2"></i>Updated!';
-                        
-                        // Revert button after 2 seconds
-                        setTimeout(() => {
-                            button.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Get New Tip';
-                            button.disabled = false;
-                        }, 2000);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    button.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Error';
-                    setTimeout(() => {
-                        button.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Get New Tip';
-                        button.disabled = false;
-                    }, 2000);
-                });
         }
     </script>
 </body>
