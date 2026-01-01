@@ -9,7 +9,7 @@ use App\Http\Controllers\Student\NotificationController as StudentNotificationCo
 use App\Http\Controllers\Teacher\NotificationController as TeacherNotificationController;
 use App\Http\Controllers\Student\WeakAreaController;
 use App\Http\Controllers\OneSignalController;
-
+use App\Http\Controllers\NewsController;
 // Public Routes
 Route::get('/', function () {
     return view('welcome');
@@ -190,4 +190,121 @@ Route::get('/feature3-test', function() {
 // Route::get('/weak-areas/enroll-test/{courseId}', [\App\Http\Controllers\Student\WeakAreaController::class, 'enrollTest'])->name('weak-areas.enroll-test');
 // Route::get('/weak-areas/clear-enrollments', [\App\Http\Controllers\Student\WeakAreaController::class, 'clearTestEnrollments'])->name('weak-areas.clear-enrollments');
 // Add these routes after the existing student/teacher routes
+// In web.php, add these routes:
 
+// Google Calendar Routes - CORRECTED
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('google-calendar')->name('google-calendar.')->group(function () {
+        // Main calendar page
+        Route::get('/', [App\Http\Controllers\GoogleCalendarController::class, 'index'])->name('index');
+        
+        // OAuth flow
+        Route::get('/connect', [App\Http\Controllers\GoogleCalendarController::class, 'connect'])->name('connect');
+        Route::get('/callback', [App\Http\Controllers\GoogleCalendarController::class, 'callback'])->name('callback');
+        Route::get('/disconnect', [App\Http\Controllers\GoogleCalendarController::class, 'disconnect'])->name('disconnect');
+        
+        // Event operations
+        Route::post('/events', [App\Http\Controllers\GoogleCalendarController::class, 'createEvent'])->name('events.create');
+        Route::delete('/events/{eventId}', [App\Http\Controllers\GoogleCalendarController::class, 'deleteEvent'])->name('events.delete');
+        
+        // Quick add events
+        Route::post('/events/course/{course}', [App\Http\Controllers\GoogleCalendarController::class, 'createCourseEvent'])->name('events.course');
+        Route::post('/events/quiz/{quiz}', [App\Http\Controllers\GoogleCalendarController::class, 'createQuizEvent'])->name('events.quiz');
+    });
+});
+// newss
+// News Routes
+Route::prefix('news')->group(function () {
+    Route::get('/', [NewsController::class, 'index'])->name('news.index');
+    Route::get('/articles', [NewsController::class, 'getNews'])->name('news.articles');
+    Route::get('/check-api', [NewsController::class, 'checkApi'])->name('news.check');
+});
+
+// News Routes
+Route::prefix('news')->group(function () {
+    Route::get('/', [NewsController::class, 'index'])->name('news.index');
+    Route::get('/articles', [NewsController::class, 'getNews'])->name('news.articles');
+    Route::get('/config', [NewsController::class, 'checkConfig'])->name('news.config');
+    Route::get('/article/{id}', [NewsController::class, 'show'])->name('news.show');
+});
+
+//test
+Route::get('/debug-newsapi', function() {
+    $apiKey = config('services.newsapi.key');
+    
+    // Test 1: Different endpoints
+    $tests = [
+        'top-headlines US' => "https://newsapi.org/v2/top-headlines?country=us&apiKey={$apiKey}",
+        'top-headlines tech' => "https://newsapi.org/v2/top-headlines?category=technology&country=us&apiKey={$apiKey}",
+        'everything tech' => "https://newsapi.org/v2/everything?q=technology&language=en&apiKey={$apiKey}",
+    ];
+    
+    $results = [];
+    
+    foreach ($tests as $name => $url) {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_HEADER => true, // Get headers
+            CURLOPT_HTTPHEADER => [
+                'User-Agent: Mozilla/5.0 (compatible; Laravel/10.0)',
+            ],
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $headers = substr($response, 0, $headerSize);
+        $body = substr($response, $headerSize);
+        
+        curl_close($ch);
+        
+        $data = json_decode($body, true);
+        
+        $results[$name] = [
+            'url' => str_replace($apiKey, '***', $url),
+            'http_code' => $httpCode,
+            'error' => $error,
+            'status' => $data['status'] ?? 'error',
+            'code' => $data['code'] ?? null,
+            'message' => $data['message'] ?? null,
+            'totalResults' => $data['totalResults'] ?? 0,
+        ];
+    }
+    
+    // Test 2: Check if key is blocked/banned
+    $keyTestUrl = "https://newsapi.org/v2/sources?apiKey={$apiKey}";
+    $ch = curl_init($keyTestUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_TIMEOUT => 10,
+    ]);
+    $keyTestResponse = curl_exec($ch);
+    $keyTestCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    $keyData = json_decode($keyTestResponse, true);
+    
+    return response()->json([
+        'api_key_preview' => substr($apiKey, 0, 8) . '...',
+        'tests' => $results,
+        'key_status_test' => [
+            'endpoint' => 'sources',
+            'http_code' => $keyTestCode,
+            'status' => $keyData['status'] ?? 'error',
+            'message' => $keyData['message'] ?? null,
+            'sources_count' => isset($keyData['sources']) ? count($keyData['sources']) : 0,
+        ],
+        'possible_issues' => [
+            'rate_limit' => 'Free tier: 100 requests/day',
+            'ssl_issue' => 'Try with verify => false',
+            'user_agent' => 'Some APIs require User-Agent',
+            'parameter_error' => 'Invalid parameters might cause 400',
+        ]
+    ]);
+});

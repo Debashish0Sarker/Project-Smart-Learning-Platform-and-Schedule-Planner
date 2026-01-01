@@ -201,6 +201,72 @@
             background-color: rgba(255, 255, 255, 0.2);
             border-bottom: 2px solid white;
         }
+
+        /* News Article Styles */
+        .news-article-card {
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .news-article-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            border-color: #c7d2fe;
+        }
+
+        .news-image-container {
+            height: 160px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .news-article-card:hover .news-image {
+            transform: scale(1.05);
+        }
+
+        .news-source-badge {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            display: inline-block;
+        }
+
+        .news-category-badge {
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .news-loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -229,6 +295,11 @@
 
                         <a href="/student/submission-tracker" class="nav-link {{ request()->is('student/submission-tracker*') ? 'active' : '' }}">
                             {{ __('Submission Tracker') }}
+                        </a>
+                        
+                        <!-- Add News Link -->
+                        <a href="/news" class="nav-link {{ request()->is('news*') ? 'active' : '' }}">
+                            <i class="fas fa-newspaper mr-2"></i>{{ __('News') }}
                         </a>
                     </div>
                     
@@ -270,7 +341,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column: Active Quizzes -->
+            <!-- Left Column: Active Quizzes & Education News -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Active Quizzes Card -->
                 <div class="dashboard-card animate-fadeInUp">
@@ -315,21 +386,59 @@
                     @endif
                 </div>
 
-                <!-- Quick Actions Card (if you want to add it back) -->
-                <!-- <div class="dashboard-card animate-fadeInUp">
+                <!-- Education News Card -->
+                <div class="dashboard-card animate-fadeInUp">
                     <div class="card-header">
                         <div class="card-icon">
-                            <i class="fas fa-bolt"></i>
+                            <i class="fas fa-newspaper"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800">Quick Actions</h3>
-                            <p class="text-gray-600 text-sm">Frequently used actions</p>
+                            <h3 class="text-xl font-bold text-gray-800">Latest Education News</h3>
+                            <p class="text-gray-600 text-sm">Stay updated with educational technology trends</p>
+                        </div>
+                        <div class="ml-auto">
+                            <button onclick="refreshNews()" class="refresh-button text-sm">
+                                <i class="fas fa-sync-alt mr-2"></i>Refresh
+                            </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <!-- Add quick action buttons here -->
-                    <!-- </div>
-                </div> -->
+
+                    <!-- News Loading Indicator -->
+                    <div id="newsLoading" class="text-center py-8">
+                        <div class="news-loading-spinner mx-auto mb-4"></div>
+                        <p class="text-gray-600">Loading education news...</p>
+                    </div>
+
+                    <!-- News Container -->
+                    <div id="newsContainer" class="space-y-4 hidden">
+                        <!-- News articles will be loaded here -->
+                    </div>
+
+                    <!-- No News Message -->
+                    <div id="noNews" class="hidden text-center py-8">
+                        <div class="text-gray-400 text-5xl mb-4">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <p class="text-gray-500 text-lg mb-4">No news articles available</p>
+                        <p class="text-gray-400">Check back later for updates</p>
+                    </div>
+
+                    <!-- API Status (Hidden by default) -->
+                    <div id="apiStatus" class="mt-4 pt-4 border-t border-gray-100 hidden">
+                        <p class="text-xs text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <span id="apiStatusText">Loading API status...</span>
+                        </p>
+                    </div>
+
+                    <!-- View All News Button -->
+                    <div class="mt-6 text-center">
+                        <a href="/news" class="primary-button px-8 py-3">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            View All News
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <!-- Right Column: Schedule & Courses -->
@@ -435,6 +544,117 @@
     </div>
 
     <script>
+        // Load education news on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEducationNews();
+        });
+
+        function loadEducationNews() {
+            const newsContainer = document.getElementById('newsContainer');
+            const loadingElement = document.getElementById('newsLoading');
+            const noNewsElement = document.getElementById('noNews');
+            const apiStatusElement = document.getElementById('apiStatus');
+            const apiStatusText = document.getElementById('apiStatusText');
+
+            // Show loading, hide others
+            loadingElement.classList.remove('hidden');
+            newsContainer.classList.add('hidden');
+            noNewsElement.classList.add('hidden');
+            apiStatusElement.classList.add('hidden');
+
+            // Fetch education news
+            fetch('/news/articles?category=education&search=education technology')
+                .then(response => response.json())
+                .then(data => {
+                    loadingElement.classList.add('hidden');
+
+                    if (data.success && data.articles && data.articles.length > 0) {
+                        renderNewsArticles(data.articles);
+                        newsContainer.classList.remove('hidden');
+                        
+                        // Update API status
+                        apiStatusText.textContent = 'Showing latest education news from NewsAPI';
+                        apiStatusElement.classList.remove('hidden');
+                    } else {
+                        noNewsElement.classList.remove('hidden');
+                        apiStatusText.textContent = 'Using demo data - Add NEWS_API_KEY to .env for real news';
+                        apiStatusElement.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading news:', error);
+                    loadingElement.classList.add('hidden');
+                    noNewsElement.classList.remove('hidden');
+                    apiStatusText.textContent = 'Unable to load news - Network error';
+                    apiStatusElement.classList.remove('hidden');
+                });
+        }
+
+        function renderNewsArticles(articles) {
+            const container = document.getElementById('newsContainer');
+            container.innerHTML = '';
+
+            // Show only 3 articles for the dashboard
+            const articlesToShow = articles.slice(0, 3);
+
+            articlesToShow.forEach(article => {
+                const articleHTML = `
+                    <div class="news-article-card">
+                        <div class="news-image-container">
+                            <img src="${article.image || 'https://images.unsplash.com/photo-1589256469067-ea99122bbdc4?auto=format&fit=crop&w=800&q=80'}" 
+                                 alt="${article.title}"
+                                 class="news-image"
+                                 onerror="this.src='https://images.unsplash.com/photo-1589256469067-ea99122bbdc4?auto=format&fit=crop&w=800&q=80'">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="news-source-badge">${article.source}</span>
+                                <span class="text-xs text-gray-500">${article.published_at}</span>
+                            </div>
+                            <h4 class="font-bold text-gray-800 text-lg mb-2 line-clamp-2">${article.title}</h4>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">${article.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">By ${article.author}</span>
+                                <a href="${article.url}" target="_blank" 
+                                   class="text-blue-600 hover:text-blue-800 font-medium text-sm inline-flex items-center">
+                                    Read <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += articleHTML;
+            });
+
+            // Add fade-in animation
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.3s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 50);
+        }
+
+        function refreshNews() {
+            const button = event.target.closest('.refresh-button');
+            const originalContent = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Refreshing...';
+            button.disabled = true;
+
+            // Reload news
+            loadEducationNews();
+            
+            // Restore button after 2 seconds
+            setTimeout(() => {
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }, 2000);
+        }
+
         function refreshTip() {
             const button = event.target.closest('.refresh-button');
             const originalContent = button.innerHTML;

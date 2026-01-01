@@ -34,5 +34,10 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+            // config/services.php - Add this array
+        'newsapi' => [
+    'key' => env('NEWS_API_KEY'),
+    'url' => 'https://newsapi.org/v2/',
+],
 
 ];
