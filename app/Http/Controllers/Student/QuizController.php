@@ -223,7 +223,7 @@ class QuizController extends Controller
         if ($hasSubjective) {
             return view('student.quizzes.pending', [
                 'quiz' => $quiz,
-                'message' => 'Objective and True/False questions have been auto-graded. ⏳ Subjective answers are pending teacher evaluation. Your final score and percentage will be available after review.',
+                'message' => 'Objective and True/False questions have been auto-graded.Subjective answers are pending teacher evaluation. Your final score and percentage will be available after review.',
                 'details' => $details
             ]);
         } else {
