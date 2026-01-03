@@ -278,7 +278,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">Welcome Back, Student</h1>
+                    <h1 class="text-3xl font-bold mb-2">Smartlearn</h1>
                     <p class="text-white/90">Your personalized learning dashboard</p>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -354,13 +354,7 @@
                                     {{ now()->format('F j, Y \a\t g:i A') }}
                                 </div>
                             </div>
-                            <div class="p-3 bg-white rounded-lg border border-gray-200">
-                                <div class="text-sm text-gray-500 mb-1">Questions Answered</div>
-                                <div class="font-medium text-gray-900">
-                                    <i class="fas fa-question-circle mr-2 text-blue-500"></i>
-                                    {{ count($details) }} Questions
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -510,7 +504,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div class="flex items-center text-gray-600">
                             <i class="fas fa-info-circle mr-2 text-blue-500"></i>
-                            <p class="text-sm">Your results will be available soon. Check your dashboard for updates.</p>
+                            <p class="text-sm">Your results will be available soon after evaluation</p>
                         </div>
                         
                         <div class="flex flex-wrap gap-3">
@@ -521,7 +515,7 @@
                             
                             <a href="{{ route('student.practice-quiz.create') }}" class="secondary-button">
                                 <i class="fas fa-dumbbell mr-2"></i>
-                                Take Another Quiz
+                                Practice Quiz
                             </a>
                         </div>
                     </div>

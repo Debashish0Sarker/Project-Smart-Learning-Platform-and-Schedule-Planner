@@ -110,28 +110,11 @@
                 <!-- Reset Token -->
                 <input type="hidden" name="token" value="{{ $token }}">
 
-                <!-- Email -->
-                <div class="mb-5">
-                    <label class="block mb-2 text-sm font-medium text-gray-700">
-                        <i class="fas fa-envelope mr-2 text-gray-400"></i>Email Address
-                    </label>
-                    <input
-                        type="email"
-                        name="email"
-                        value="{{ old('email', $request->email ?? '') }}"
-                        required
-                        autofocus
-                        autocomplete="username"
-                        class="form-input {{ $errors->has('email') ? 'error' : '' }}"
-                        placeholder="you@testmail.com"
-                    >
-                    @if($errors->has('email'))
-                        <div class="error-message">
-                            <i class="fas fa-exclamation-circle mr-2"></i>
-                            {{ $errors->first('email') }}
-                        </div>
-                    @endif
-                </div>
+                <!-- Email (bound to token, not user input) -->
+                <input type="hidden" name="email" value="{{ request('email') }}">
+                <p class="text-sm text-gray-600 mb-4 text-center">
+                   Resetting password for <strong>{{ request('email') }}</strong>
+                </p>
 
                 <!-- New Password -->
                 <div class="mb-5">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -45,7 +47,17 @@ class AuthController extends Controller
 
 
     // 5. For now: simply show the link on screen (because email sending is Step 5)
-    return back()->with('status', "Use this link to reset your password (valid for 2 minutes): $resetLink");
+    Mail::html(
+        "<p>Click the link below to reset your password (valid for 2 minutes):</p>
+        <p><a href='{$resetLink}'>Reset Password</a></p>",
+       function ($message) use ($request) {
+        $message->to($request->email)
+                ->subject('Password Reset Request');
+    }
+    );
+
+
+    return back()->with('status', 'A password reset link has been sent to your email.');
     }
 
     public function register(Request $request)

@@ -24,7 +24,12 @@ class PasswordResetLinkController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
-    {
+    {   
+        dd(
+            config('mail.default'),
+            config('mail.mailers.smtp.host'),
+            env('MAIL_MAILER')
+        );
         $request->validate([
             'email' => ['required', 'email'],
         ]);

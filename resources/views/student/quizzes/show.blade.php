@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -221,7 +220,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">Welcome Back, Student</h1>
+                    <h1 class="text-3xl font-bold mb-2">Smartlearn</h1>
                     <p class="text-white/90">Your personalized learning dashboard</p>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -287,9 +286,8 @@
                     <div class="text-sm text-red-600 font-medium mb-1 flex items-center">
                         <i class="fas fa-clock mr-2"></i>Time Remaining
                     </div>
-                    <div id="timer" class="text-3xl font-bold text-red-700">
-                        {{ $durationMinutes }}:00
-                    </div>
+                    <div id="timer" class="text-3xl font-bold text-red-700">--:--</div>
+
                     <div class="text-xs text-red-500 mt-2 flex items-center">
                         <i class="fas fa-exclamation-circle mr-1"></i>
                         Auto-submits when time ends
@@ -377,12 +375,7 @@
 
                 <!-- Footer -->
                 <div class="mt-10 flex flex-col sm:flex-row justify-between items-center gap-4 animate-fadeInUp">
-                    <div class="flex items-center text-gray-500">
-                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                        <p class="text-sm">
-                            You have answered {{ count($questions) }} questions
-                        </p>
-                    </div>
+                    
 
                     <div class="flex gap-3">
                         <button type="button"
