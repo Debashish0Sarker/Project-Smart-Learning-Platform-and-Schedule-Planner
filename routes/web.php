@@ -10,6 +10,8 @@ use App\Http\Controllers\Teacher\NotificationController as TeacherNotificationCo
 use App\Http\Controllers\Student\WeakAreaController;
 use App\Http\Controllers\OneSignalController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\Student\PracticeQuizController;
+
 // Public Routes
 Route::get('/', function () {
     return view('welcome');
@@ -118,11 +120,12 @@ Route::middleware(['auth'])->prefix('student')->name('student.')->group(function
 
     // Practice Quiz Routes (student-scoped)
     Route::prefix('practice-quiz')->name('practice-quiz.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
-        Route::get('/create', [\App\Http\Controllers\Student\PracticeQuizController::class, 'create'])->name('create');
-        Route::post('/generate', [\App\Http\Controllers\Student\PracticeQuizController::class, 'generate'])->name('generate');
-        Route::post('/submit', [\App\Http\Controllers\Student\PracticeQuizController::class, 'submit'])->name('submit');
-    });
+    Route::get('/', [PracticeQuizController::class, 'create'])->name('index');
+    Route::get('/create', [PracticeQuizController::class, 'create'])->name('create');
+    Route::post('/generate', [PracticeQuizController::class, 'generate'])->name('generate');
+    Route::post('/submit', [PracticeQuizController::class, 'submit'])->name('submit');
+});
+
 
 });
     
