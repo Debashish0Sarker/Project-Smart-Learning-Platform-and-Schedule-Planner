@@ -7,7 +7,8 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@ably/laravel-echo": "^1.0.6",
+        "laravel-echo": "^1.16.2",
+        "pusher-js": "^8.4.0-rc3",
         "@tailwindcss/postcss": "^4.1.18",
         "@tailwindcss/vite": "^4.1.18",
         "autoprefixer": "^10.4.23",
