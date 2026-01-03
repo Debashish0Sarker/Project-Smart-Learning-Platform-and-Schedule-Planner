@@ -286,9 +286,8 @@
                     <div class="text-sm text-red-600 font-medium mb-1 flex items-center">
                         <i class="fas fa-clock mr-2"></i>Time Remaining
                     </div>
-                    <div id="timer" class="text-3xl font-bold text-red-700">
-                        {{ $durationMinutes }}:00
-                    </div>
+                    <div id="timer" class="text-3xl font-bold text-red-700">--:--</div>
+
                     <div class="text-xs text-red-500 mt-2 flex items-center">
                         <i class="fas fa-exclamation-circle mr-1"></i>
                         Auto-submits when time ends
