@@ -130,9 +130,11 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            // Login successful → reset throttle counter
-            RateLimiter::clear($throttleKey);
+            // Login successful → regenerate session
             $request->session()->regenerate();
+            
+            // Reset throttle counter
+            RateLimiter::clear($throttleKey);
 
             // Redirect based on role
             $role = Auth::user()->role;
@@ -148,6 +150,9 @@ class AuthController extends Controller
         RateLimiter::hit($throttleKey, 300); // 5 minutes = 300 seconds
 
         return back()->withErrors([
+            'email' => 'Invalid email or password.'
+        ]);
+    }
             'email' => 'Invalid email or password.'
         ]);
     }
