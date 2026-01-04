@@ -82,10 +82,12 @@ class ResourceController extends Controller
 
     // Handle file upload if it's not a link
     $filePath = null;
-    if ($request->type !== 'link' && $request->hasFile('file')) {
-        $file = $request->file('file');
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $filePath = $file->store('course_materials', 'public');
+if ($request->type !== 'link' && $request->hasFile('file')) {
+    $file = $request->file('file');
+    // Store with original filename
+    $fileName = time() . '_' . $file->getClientOriginalName();
+    // Store the file with its original name
+    $filePath = $file->storeAs('course_materials', $fileName, 'public');
     }
 
     // Create material
