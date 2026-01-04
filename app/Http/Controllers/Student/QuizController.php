@@ -36,6 +36,91 @@ class QuizController extends Controller
             ->whereNull('submitted_at')
             ->first();
 
+        // Prevent student from starting multiple quizzes at the same time.
+        $otherActive = QuizResponse::where('user_id', Auth::id())
+            ->whereNull('submitted_at')
+            ->where('quiz_id', '!=', $quiz_id)
+            ->first();
+
+        if ($otherActive) {
+            return redirect()->route('student.quizzes.show', $otherActive->quiz_id)
+                ->with('error', 'You already have an active quiz. Finish it before starting another.');
+        }
+
+        // If the student already submitted this quiz previously, show the result/pending view
+        $submittedResponse = QuizResponse::where('user_id', Auth::id())
+            ->where('quiz_id', $quiz_id)
+            ->whereNotNull('submitted_at')
+            ->latest('submitted_at')
+            ->first();
+
+        if ($submittedResponse) {
+            // Build details from QuizAnswer records to reuse existing views
+            $questions = $quiz->questions;
+            $answers = $submittedResponse->quizAnswers()->get()->keyBy('question_id');
+            $details = [];
+
+            foreach ($questions as $q) {
+                $qa = $answers->get($q->id);
+                $given = null;
+                $isCorrect = false;
+                $points = 0;
+
+                if ($qa) {
+                    $given = null;
+                    // answer_given may be JSON for arrays
+                    if ($qa->answer_given && $this->isJson($qa->answer_given)) {
+                        $given = json_decode($qa->answer_given, true);
+                    } else {
+                        $given = $qa->answer_given;
+                    }
+                    $isCorrect = (bool) $qa->is_correct;
+                    $points = $qa->points_awarded ?? 0;
+                }
+
+                $correctAnswers = is_array($q->correct_answers) ? $q->correct_answers : (json_decode($q->correct_answers, true) ?? []);
+
+                $details[] = [
+                    'question_id' => $q->id,
+                    'selected' => $given,
+                    'correct' => $correctAnswers,
+                    'status' => $q->question_type === 'short_answer' ? 'pending' : ($isCorrect ? 'correct' : 'wrong'),
+                    'points' => $points,
+                ];
+            }
+
+            if (!$submittedResponse->is_checked) {
+                return view('student.quizzes.pending', [
+                    'quiz' => $quiz,
+                    'message' => 'You have already submitted this quiz. Subjective answers pending review.',
+                    'details' => $details
+                ]);
+            }
+
+            return view('student.quizzes.result', [
+                'quiz' => $quiz,
+                'score' => $submittedResponse->score,
+                'total' => $questions->count(),
+                'percentage' => $submittedResponse->percentage,
+                'details' => $details
+            ]);
+        }
+
+        // If an active attempt exists but its timer already expired (possibly seeded),
+        // reset its `started_at` so the student gets a fresh time window rather than
+        // immediately being auto-submitted.
+        if ($activeAttempt && $quiz->duration_minutes && $activeAttempt->started_at) {
+            $totalSeconds = $quiz->duration_minutes * 60;
+            $elapsedSeconds = now()->diffInSeconds($activeAttempt->started_at);
+            if ($elapsedSeconds >= $totalSeconds) {
+                $activeAttempt->update([
+                    'started_at' => now(),
+                    'answers' => $activeAttempt->answers ?? []
+                ]);
+                \Log::info('Reset expired quiz attempt start time', ['response_id' => $activeAttempt->id, 'quiz_id' => $quiz->id, 'elapsed' => $elapsedSeconds]);
+            }
+        }
+
         // If no active attempt, create one
         if (!$activeAttempt) {
             $activeAttempt = QuizResponse::create([
@@ -69,6 +154,7 @@ class QuizController extends Controller
             'questions' => $questions,
             'attemptId' => $activeAttempt->id,
             'remainingSeconds' => $remainingSeconds,
+            'attemptStartedAt' => $activeAttempt->started_at ? ($activeAttempt->started_at->getTimestamp()*1000) : null,
             'durationMinutes' => $quiz->duration_minutes
         ]);
     }
@@ -329,5 +415,15 @@ class QuizController extends Controller
     {
         $quizzes = Quiz::where('is_published', 1)->get();
         return view('student.dashboard', compact('quizzes'));
+    }
+
+    /**
+     * Utility: determine if a string is JSON
+     */
+    private function isJson($string)
+    {
+        if (!is_string($string)) return false;
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 }

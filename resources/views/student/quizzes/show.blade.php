@@ -392,7 +392,19 @@
 
     @if($durationMinutes)
     <script>
-        let remainingSeconds = {{ $remainingSeconds ?? $durationMinutes * 60 }};
+        // Server-provided values
+        const attemptStartedAtMs = {{ isset($attemptStartedAt) ? $attemptStartedAt : 'null' }};
+        const totalSecondsFromServer = {{ $durationMinutes ? ($durationMinutes * 60) : 'null' }};
+
+        // Compute authoritative server remaining seconds if we have a server start time.
+        let remainingSeconds = 0;
+        if (attemptStartedAtMs !== null && totalSecondsFromServer !== null) {
+            const elapsed = Math.floor((Date.now() - attemptStartedAtMs) / 1000);
+            remainingSeconds = Math.max(0, totalSecondsFromServer - elapsed);
+        } else if (totalSecondsFromServer !== null) {
+            // Fallback: use full duration if no attempt start available
+            remainingSeconds = totalSecondsFromServer;
+        }
         let timerInterval;
         let isSubmitted = false;
         const attemptId = {{ $attemptId }};
@@ -494,12 +506,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const storedTime = localStorage.getItem(`quiz_timer_${attemptId}`);
-            const storedStart = localStorage.getItem(`quiz_start_${attemptId}`);
-
-            if (storedTime && storedStart) {
-                const elapsed = Math.floor((Date.now() - storedStart) / 1000);
-                remainingSeconds = Math.max(0, parseInt(storedTime) - elapsed);
+            // Keep localStorage only as a lightweight fallback; prefer server-calculated remaining time.
+            // If no server start time was provided, we may accept recent localStorage state.
+            if (attemptStartedAtMs === null) {
+                const storedTimeRaw = localStorage.getItem(`quiz_timer_${attemptId}`);
+                const storedStartRaw = localStorage.getItem(`quiz_start_${attemptId}`);
+                if (storedTimeRaw !== null && storedStartRaw !== null) {
+                    const storedTimeVal = parseInt(storedTimeRaw, 10);
+                    const storedStartVal = parseInt(storedStartRaw, 10);
+                    const nowMs = Date.now();
+                    const ageMs = nowMs - storedStartVal;
+                    const maxAgeMs = totalSecondsFromServer !== null ? (totalSecondsFromServer * 1000 + 60000) : 24 * 3600 * 1000;
+                    if (!Number.isNaN(storedTimeVal) && !Number.isNaN(storedStartVal) && storedStartVal > 0 && ageMs >= 0 && ageMs <= maxAgeMs) {
+                        const elapsed = Math.floor((nowMs - storedStartVal) / 1000);
+                        remainingSeconds = Math.max(0, storedTimeVal - elapsed);
+                    } else {
+                        localStorage.removeItem(`quiz_timer_${attemptId}`);
+                        localStorage.removeItem(`quiz_start_${attemptId}`);
+                    }
+                }
             }
 
             startTimer();
