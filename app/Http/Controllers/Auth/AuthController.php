@@ -153,9 +153,7 @@ class AuthController extends Controller
             'email' => 'Invalid email or password.'
         ]);
     }
-            'email' => 'Invalid email or password.'
-        ]);
-    }
+
     public function resetPassword(Request $request)
 {
     // 1) Basic validation
