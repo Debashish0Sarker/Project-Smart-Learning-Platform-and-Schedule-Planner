@@ -11,8 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Trust the Railway proxy headers
+        $middleware->trustProxies(at: '*');
+
+        // Add CSRF middleware with proper handling
+        $middleware->validateCsrfTokens(except: [
+            // Add any routes that should skip CSRF validation here if needed
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

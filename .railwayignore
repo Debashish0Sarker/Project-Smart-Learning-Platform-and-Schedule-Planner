@@ -1,7 +1,0 @@
-# Block EVERYTHING Railway might auto-generate
-Dockerfile
-.dockerignore
-.nixpacks/
-nixpacks.toml
-railway.toml
-*.nix
