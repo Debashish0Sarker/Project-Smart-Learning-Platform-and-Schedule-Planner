@@ -41,15 +41,33 @@ class Course extends Model
         return $this->belongsToMany(User::class, 'enrollments', 'course_id', 'student_id');
     }
 
-// app/Models/Course.php - Add this method
     public function materials()
     {
         return $this->hasMany(CourseMaterial::class);
     }
 
-// For backward compatibility if needed
     public function resources()
     {
         return $this->materials();
+    }
+
+    /**
+     * Check if course covers a specific topic (word)
+     */
+    public function coversTopic($topic)
+    {
+        if (!$this->topic_tags || !is_array($this->topic_tags)) {
+            return false;
+        }
+
+        foreach ($this->topic_tags as $tag) {
+            // Split tag into words and check if topic matches any word
+            $words = explode(' ', trim($tag));
+            if (in_array($topic, $words)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

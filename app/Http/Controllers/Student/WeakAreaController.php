@@ -95,38 +95,83 @@ class WeakAreaController extends Controller
     }
     
     /**
-     * Get weak topics
+     * Get weak topics based on student's quiz performance
      */
     private function getWeakTopics($studentId)
     {
-        // Demo data
-        return [
-            'Database' => [
-                'accuracy' => 35,
-                'total_questions' => 20,
-                'correct' => 7,
-            ],
-            'SQL' => [
-                'accuracy' => 25,
-                'total_questions' => 16,
-                'correct' => 4,
-            ],
-            'Algorithms' => [
-                'accuracy' => 45,
-                'total_questions' => 15,
-                'correct' => 7,
-            ],
-            'Data Structures' => [
-                'accuracy' => 55,
-                'total_questions' => 12,
-                'correct' => 7,
-            ],
-            'JavaScript' => [
-                'accuracy' => 65,
-                'total_questions' => 18,
-                'correct' => 12,
-            ],
-        ];
+        // Get all quiz responses for this student
+        $quizResponses = DB::table('quiz_responses')
+            ->where('user_id', $studentId)
+            ->get();
+
+        if ($quizResponses->isEmpty()) {
+            // Return demo data if no quiz data exists
+            return [
+                'Database' => [
+                    'accuracy' => 35,
+                    'total_questions' => 20,
+                    'correct' => 7,
+                ],
+                'SQL' => [
+                    'accuracy' => 25,
+                    'total_questions' => 16,
+                    'correct' => 4,
+                ],
+                'Algorithms' => [
+                    'accuracy' => 45,
+                    'total_questions' => 15,
+                    'correct' => 7,
+                ],
+            ];
+        }
+
+        // Calculate performance by topic tag
+        $topicStats = [];
+
+        foreach ($quizResponses as $response) {
+            // Get all questions for this quiz
+            $questions = DB::table('questions')
+                ->where('quiz_id', $response->quiz_id)
+                ->get();
+
+            foreach ($questions as $question) {
+                $topicTag = $question->topic_tag;
+
+                if (!isset($topicStats[$topicTag])) {
+                    $topicStats[$topicTag] = [
+                        'correct' => 0,
+                        'total_questions' => 0,
+                        'accuracy' => 0,
+                    ];
+                }
+
+                $topicStats[$topicTag]['total_questions']++;
+
+                // Check if student answered this question correctly using quiz_answers table
+                $studentAnswers = DB::table('quiz_answers')
+                    ->where('response_id', $response->id)
+                    ->where('question_id', $question->id)
+                    ->first();
+
+                if ($studentAnswers && $studentAnswers->is_correct) {
+                    $topicStats[$topicTag]['correct']++;
+                }
+            }
+        }
+
+        // Calculate accuracy percentages
+        foreach ($topicStats as $topic => &$stats) {
+            if ($stats['total_questions'] > 0) {
+                $stats['accuracy'] = round(($stats['correct'] / $stats['total_questions']) * 100);
+            }
+        }
+
+        // Sort by accuracy (ascending) to show weakest first
+        uasort($topicStats, function ($a, $b) {
+            return $a['accuracy'] - $b['accuracy'];
+        });
+
+        return $topicStats;
     }
     
     /**
@@ -150,20 +195,40 @@ class WeakAreaController extends Controller
             return collect();
         }
         
-        // Get courses that match weak topics
-        $query = Course::query();
-        
-        foreach ($weakTopicNames as $tag) {
-            $query->orWhereJsonContains('topic_tags', $tag);
-        }
-        
-        // Exclude courses student is already enrolled in
+        // Get enrolled course IDs
         $enrolledCourseIds = $this->getEnrolledCourses($studentId);
-        if (!empty($enrolledCourseIds)) {
-            $query->whereNotIn('id', $enrolledCourseIds);
+        
+        // Get all courses and filter manually by checking if they cover weak topics
+        $allCourses = Course::all();
+        $recommendedCourses = [];
+        
+        foreach ($allCourses as $course) {
+            // Skip if already enrolled
+            if (in_array($course->id, $enrolledCourseIds)) {
+                continue;
+            }
+            
+            // Check if course covers any weak topics
+            foreach ($weakTopicNames as $weakTopic) {
+                // Match either by course topic_tags or by questions attached to quizzes in the course
+                $matchesTag = $course->coversTopic($weakTopic);
+                $matchesQuestions = $course->quizzes()->whereHas('questions', function($q) use ($weakTopic) {
+                    $q->where('topic_tag', 'LIKE', "%{$weakTopic}%");
+                })->exists();
+
+                if ($matchesTag || $matchesQuestions) {
+                    $recommendedCourses[] = $course;
+                    break; // Don't add same course twice
+                }
+            }
+            
+            // Limit to 6 recommendations
+            if (count($recommendedCourses) >= 6) {
+                break;
+            }
         }
         
-        return $query->limit(6)->get();
+        return collect($recommendedCourses);
     }
     
     /**

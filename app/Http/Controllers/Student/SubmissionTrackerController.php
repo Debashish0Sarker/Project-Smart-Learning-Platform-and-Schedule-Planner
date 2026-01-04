@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
-use App\Models\Enrollment;
 use App\Models\QuizResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,12 +17,8 @@ class SubmissionTrackerController extends Controller
     {
         $user = Auth::user();
         
-        // Get enrolled courses
-        $enrolledCourseIds = $user->enrollments()->pluck('course_id');
-        
-        // Get published quizzes from enrolled courses
-        $quizzes = Quiz::whereIn('course_id', $enrolledCourseIds)
-            ->where('is_published', true)
+        // Get published quizzes from all courses (no enrollment filter)
+        $quizzes = Quiz::where('is_published', true)
             ->with(['course', 'quizResponses' => function($query) use ($user) {
                 $query->where('user_id', $user->id);
             }])

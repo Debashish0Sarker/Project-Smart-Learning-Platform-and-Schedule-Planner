@@ -28,18 +28,38 @@ class QuizController extends Controller
         // For development: get all courses
         $courses = Course::all();
         
-        $topicTags = [
-            'Software Development',
-            'Compiler Design',
-            'System Analysis',
-            'Database Design',
-            'Web Development',
-            'Algorithms',
-            'Data Structures',
-            'Networking',
-            'Operating Systems',
-            'Machine Learning'
-        ];
+        // Flatten topic tags from all courses - convert arrays to individual single-word topics
+        $topicTagsSet = [];
+        foreach ($courses as $course) {
+            if ($course->topic_tags && is_array($course->topic_tags)) {
+                foreach ($course->topic_tags as $tag) {
+                    // Split multi-word tags into individual words
+                    $words = preg_split('/\s+|[,;\\/\\-]/', trim($tag));
+                    foreach ($words as $word) {
+                        $word = trim($word);
+                        if (!empty($word)) {
+                            $topicTagsSet[$word] = $word; // Use as key to avoid duplicates
+                        }
+                    }
+                }
+            }
+        }
+
+        // Also include topic tags used in existing questions (fallback when courses don't have tags)
+        $questionTags = Question::query()->distinct()->pluck('topic_tag')->filter()->all();
+        foreach ($questionTags as $qt) {
+            $words = preg_split('/\s+|[,;\\/\\-]/', trim($qt));
+            foreach ($words as $word) {
+                $word = trim($word);
+                if (!empty($word)) {
+                    $topicTagsSet[$word] = $word;
+                }
+            }
+        }
+
+        // Convert to indexed array and sort
+        $topicTags = array_values($topicTagsSet);
+        sort($topicTags);
         
         return view('teacher.quizzes.create', compact('courses', 'topicTags'));
     }
