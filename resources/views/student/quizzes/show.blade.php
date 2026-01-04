@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $quiz->title }} - Quiz</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -199,13 +199,13 @@
         }
 
         @keyframes fadeInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
@@ -242,7 +242,7 @@
                             {{ __('Submission Tracker') }}
                         </a>
                     </div>
-                    
+
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="secondary-button">
@@ -286,8 +286,9 @@
                     <div class="text-sm text-red-600 font-medium mb-1 flex items-center">
                         <i class="fas fa-clock mr-2"></i>Time Remaining
                     </div>
-                    <div id="timer" class="text-3xl font-bold text-red-700">--:--</div>
-
+                    <div id="timer" class="text-3xl font-bold text-red-700">
+                        {{ $durationMinutes }}:00
+                    </div>
                     <div class="text-xs text-red-500 mt-2 flex items-center">
                         <i class="fas fa-exclamation-circle mr-1"></i>
                         Auto-submits when time ends
@@ -323,15 +324,7 @@
                             </div>
 
                             @if($question->question_type === 'mcq')
-                                @php
-                                    $options = $question->options;
-                                    if (is_string($options)) {
-                                        $options = json_decode($options, true) ?? [];
-                                    }
-                                    if (!is_array($options)) {
-                                        $options = [];
-                                    }
-                                @endphp
+                                @php $options = is_array($question->options) ? $question->options : (json_decode($question->options, true) ?? []); @endphp
                                 <div class="space-y-3">
                                     @foreach($options as $option)
                                         <label class="option-card">
@@ -375,7 +368,7 @@
 
                 <!-- Footer -->
                 <div class="mt-10 flex flex-col sm:flex-row justify-between items-center gap-4 animate-fadeInUp">
-                    
+
 
                     <div class="flex gap-3">
                         <button type="button"
@@ -399,7 +392,19 @@
 
     @if($durationMinutes)
     <script>
-        let remainingSeconds = {{ $remainingSeconds ?? $durationMinutes * 60 }};
+        // Server-provided values
+        const attemptStartedAtMs = {{ isset($attemptStartedAt) ? $attemptStartedAt : 'null' }};
+        const totalSecondsFromServer = {{ $durationMinutes ? ($durationMinutes * 60) : 'null' }};
+
+        // Compute authoritative server remaining seconds if we have a server start time.
+        let remainingSeconds = 0;
+        if (attemptStartedAtMs !== null && totalSecondsFromServer !== null) {
+            const elapsed = Math.floor((Date.now() - attemptStartedAtMs) / 1000);
+            remainingSeconds = Math.max(0, totalSecondsFromServer - elapsed);
+        } else if (totalSecondsFromServer !== null) {
+            // Fallback: use full duration if no attempt start available
+            remainingSeconds = totalSecondsFromServer;
+        }
         let timerInterval;
         let isSubmitted = false;
         const attemptId = {{ $attemptId }};
@@ -490,7 +495,7 @@
                     saveBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Saved!';
                     saveBtn.style.background = '#10b981';
                     saveBtn.style.color = 'white';
-                    
+
                     setTimeout(() => {
                         saveBtn.innerHTML = originalText;
                         saveBtn.style.background = '';
@@ -501,12 +506,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const storedTime = localStorage.getItem(`quiz_timer_${attemptId}`);
-            const storedStart = localStorage.getItem(`quiz_start_${attemptId}`);
-
-            if (storedTime && storedStart) {
-                const elapsed = Math.floor((Date.now() - storedStart) / 1000);
-                remainingSeconds = Math.max(0, parseInt(storedTime) - elapsed);
+            // Keep localStorage only as a lightweight fallback; prefer server-calculated remaining time.
+            // If no server start time was provided, we may accept recent localStorage state.
+            if (attemptStartedAtMs === null) {
+                const storedTimeRaw = localStorage.getItem(`quiz_timer_${attemptId}`);
+                const storedStartRaw = localStorage.getItem(`quiz_start_${attemptId}`);
+                if (storedTimeRaw !== null && storedStartRaw !== null) {
+                    const storedTimeVal = parseInt(storedTimeRaw, 10);
+                    const storedStartVal = parseInt(storedStartRaw, 10);
+                    const nowMs = Date.now();
+                    const ageMs = nowMs - storedStartVal;
+                    const maxAgeMs = totalSecondsFromServer !== null ? (totalSecondsFromServer * 1000 + 60000) : 24 * 3600 * 1000;
+                    if (!Number.isNaN(storedTimeVal) && !Number.isNaN(storedStartVal) && storedStartVal > 0 && ageMs >= 0 && ageMs <= maxAgeMs) {
+                        const elapsed = Math.floor((nowMs - storedStartVal) / 1000);
+                        remainingSeconds = Math.max(0, storedTimeVal - elapsed);
+                    } else {
+                        localStorage.removeItem(`quiz_timer_${attemptId}`);
+                        localStorage.removeItem(`quiz_start_${attemptId}`);
+                    }
+                }
             }
 
             startTimer();
@@ -521,7 +539,7 @@
 
             // Add animation to cards on scroll
             const cards = document.querySelectorAll('.question-card');
-            
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -531,7 +549,7 @@
                     }
                 });
             }, { threshold: 0.1 });
-            
+
             cards.forEach(card => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
