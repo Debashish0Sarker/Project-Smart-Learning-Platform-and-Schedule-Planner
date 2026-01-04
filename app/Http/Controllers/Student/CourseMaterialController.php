@@ -55,32 +55,35 @@ class CourseMaterialController extends Controller
     
     public function download(CourseMaterial $material)
     {
-        // Check if material belongs to a published course
-        if ($material->course->status !== 'published' || !$material->is_published) {
-            abort(404, 'Material not available');
-        }
-        
-
-        // FOR LOCAL FILES: Download from public disk
-        if ($material->file_path && Storage::disk('public')->exists($material->file_path)) {
-            $extension = pathinfo($material->file_path, PATHINFO_EXTENSION);
-            $downloadName = str_replace(' ', '_', $material->title) . '.' . $extension;
-            
-            return Storage::disk('public')->download($material->file_path, $downloadName);
-        }
-
-        // FOR PDFs WITH URL: Redirect to URL (will auto-download)
-        if ($material->type == 'pdf' && $material->url) {
-            return redirect()->away($material->url);
-        }
-        
-        
-        
-        // FALLBACK: Redirect to URL for other types
-        if ($material->url) {
-            return redirect()->away($material->url);
-        }
-        
-        abort(404, 'No content available');
+    // Check if material belongs to a published course
+    if ($material->course->status !== 'published' || !$material->is_published) {
+        abort(404, 'Material not available');
     }
+
+    // FOR LOCAL FILES: Download from public disk
+    if ($material->file_path && Storage::disk('public')->exists($material->file_path)) {
+        // Get original filename from the stored path
+        $fileName = basename($material->file_path);
+        // Remove timestamp prefix if exists
+        if (preg_match('/^\d+_(.+)$/', $fileName, $matches)) {
+            $downloadName = $matches[1];
+        } else {
+            $downloadName = $fileName;
+        }
+        
+        return Storage::disk('public')->download($material->file_path, $downloadName);
+    }
+
+    // FOR PDFs WITH URL: Redirect to URL (will auto-download)
+    if ($material->type == 'pdf' && $material->url) {
+        return redirect()->away($material->url);
+    }
+    
+    // FALLBACK: Redirect to URL for other types
+    if ($material->url) {
+        return redirect()->away($material->url);
+    }
+    
+    abort(404, 'No content available');
+}
 }
