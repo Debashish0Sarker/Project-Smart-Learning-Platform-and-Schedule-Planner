@@ -84,10 +84,12 @@ class PracticeQuizController extends Controller // Must extend Controller!
         $questions = session()->get('practice_quiz_questions', []);
         $params = session()->get('practice_quiz_params', []);
 
+        /*
         if (empty($questions)) {
             return redirect()->route('student.practice-quiz.create')
                 ->with('error', 'Quiz session expired. Please generate a new quiz.');
         }
+        */
 
         $request->validate([
             'answers' => 'required|array',
