@@ -145,7 +145,6 @@ After logging in as a teacher, visit:
 Teachers can create courses, upload materials, build quizzes, review submissions, and grade student work.
 
 ### 4. Use optional integrations
-- Google Calendar: visit /google-calendar
 - News page: visit /news
 - Notification testing endpoints are available under the student/teacher notification routes
 
