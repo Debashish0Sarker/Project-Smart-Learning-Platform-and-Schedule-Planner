@@ -1,59 +1,187 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Smart Learning Platform and Schedule Planner
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project is a Laravel-based web application for managing courses, quizzes, schedules, notifications, and study progress for both students and teachers.
 
-## About Laravel
+## What this application does
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The platform helps users:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Register and log in as a student or teacher
+- Browse and enroll in courses
+- Access course materials and learning resources
+- Attempt quizzes and track submissions
+- Review weak areas and receive practice quiz support
+- Manage course content, quizzes, and grading as a teacher
+- Receive notifications and view news updates
+- Connect Google Calendar for study and deadline reminders
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Main features
 
-## Learning Laravel
+### For students
+- Student dashboard with overview and progress information
+- Course browsing and enrollment
+- Course material viewing and downloading
+- Quiz participation and submission tracking
+- Weak area analysis and targeted practice quizzes
+- Notifications and schedule views
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### For teachers
+- Teacher dashboard
+- Course creation and management
+- Quiz creation and management
+- Material upload for courses
+- Submission review and grading
+- Notification management
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Integrations
+- Google Calendar connection for event reminders
+- News feed integration through News API
+- Web push notifications support
 
-## Laravel Sponsors
+## Requirements
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Before running the project, make sure you have:
 
-### Premium Partners
+- PHP 8.2 or newer
+- Composer
+- Node.js and npm
+- A database such as MySQL, PostgreSQL, or SQLite
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Installation
 
-## Contributing
+1. Clone the repository
+   ```bash
+   git clone <repository-url>
+   cd Project-Smart-Learning-Platform-and-Schedule-Planner
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. Install PHP dependencies
+   ```bash
+   composer install
+   ```
 
-## Code of Conduct
+3. Create your environment file
+   ```bash
+   copy .env.example .env
+   ```
+   On Linux or macOS, use:
+   ```bash
+   cp .env.example .env
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Generate the application key
+   ```bash
+   php artisan key:generate
+   ```
 
-## Security Vulnerabilities
+5. Configure your database in the .env file
+   Example for SQLite:
+   ```env
+   DB_CONNECTION=sqlite
+   DB_DATABASE=/absolute/path/to/database/database.sqlite
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   Or use MySQL/PostgreSQL values as needed.
 
-## License
+6. Run migrations
+   ```bash
+   php artisan migrate
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+7. Install frontend assets
+   ```bash
+   npm install
+   npm run build
+   ```
+
+8. Create the storage link
+   ```bash
+   php artisan storage:link
+   ```
+
+## Running the application
+
+Start the local development server:
+
+```bash
+composer run dev
+```
+
+This will start the Laravel app, queue listener, logs, and Vite frontend dev server.
+
+You can then open the application in your browser at:
+
+```text
+http://127.0.0.1:8000
+```
+
+## How to use it
+
+### 1. Create an account
+- Open the registration page at /register
+- Choose a student or teacher role depending on your purpose
+- Log in at /login
+
+### 2. Use the student features
+After logging in as a student, visit:
+
+- /student/dashboard
+- /student/courses
+- /student/quizzes
+- /student/weak-areas
+- /student/submission-tracker
+- /student/notifications
+
+You can enroll in courses, view materials, take quizzes, and review your weak areas.
+
+### 3. Use the teacher features
+After logging in as a teacher, visit:
+
+- /teacher/dashboard
+- /teacher/courses
+- /teacher/quizzes
+- /teacher/notifications
+
+Teachers can create courses, upload materials, build quizzes, review submissions, and grade student work.
+
+### 4. Use optional integrations
+- Google Calendar: visit /google-calendar
+- News page: visit /news
+- Notification testing endpoints are available under the student/teacher notification routes
+
+## Environment variables
+
+The app may require the following values in your .env file:
+
+```env
+APP_NAME=Smart Learning Platform
+APP_URL=http://127.0.0.1:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=smart_learning
+DB_USERNAME=root
+DB_PASSWORD=
+
+NEWS_API_KEY=your_news_api_key_here
+```
+
+## Useful commands
+
+```bash
+php artisan test
+php artisan migrate:fresh --seed
+php artisan queue:listen
+npm run dev
+```
+
+## Notes
+
+- The project is built with Laravel and uses Blade views, Eloquent models, and a Vite-based frontend.
+- If frontend assets do not appear correctly, run npm install and npm run build again.
+- If you are using a fresh environment, make sure the database is created before running migrations.
+
+# License
+
+This project is intended for academic use and follows the project’s existing licensing setup.
